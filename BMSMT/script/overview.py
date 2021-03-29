@@ -1,17 +1,23 @@
-import os, pandas, re
+import os, pandas, re, numpy
 train = {
     "csv"  : {},
     "list" : {}
 }
 train['csv']['label']  = pandas.read_csv("DATA/BMSMT/TRAIN/CSV/LABEL.csv")
-train['list']['label'] = [i.split("InChI=1S/")[1] for i in train['csv']['label']['InChI']]
-train['list']['label'] = [i.split('/')[0] for i in train['list']['label']]
-train['list']['label'] = [re.sub("[0-9]", "", i) for i in train['list']['label']]
-train['list']['length'] = []
 
-i = 'CHClNOS'
-i
+train['csv']['label_title']  = "InChI=1S/"
+train['csv']['label_*/text/*'] = [i.split("InChI=1S/")[1] for i in train['csv']['label']['InChI']]
+train['list']['element'] = [i.split('/')[0] for i in train['csv']['label_*/text/*']]
 
-w = i
-for i, j in 
+i = train['list']['element'][0]
+#character = 'CHClNOS'
+
+def element(character):
+    word = []
+    for index, letter in enumerate(character):
+        if( re.compile("[A-Z]").search(letter) ):
+            word += [letter]
+        if( re.compile("[a-z]").search(letter) ):
+            word[-1] = word[-1] + letter
+    return(word)
 
