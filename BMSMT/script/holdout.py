@@ -56,7 +56,7 @@ machine  = network.machine(model=model, optimizer=optimizer, criterion=criterion
 
 ##
 ##
-iteration = 50
+iteration = 25
 history = {
     'train' : {"mae":[]},
     'check' : {"mae":[]},
