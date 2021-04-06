@@ -1,7 +1,12 @@
 
+
 ##
+##  Packages.
 import torch
 
+
+##
+##  The [optimizer] class.
 class optimizer:
 
     def sgd(model):

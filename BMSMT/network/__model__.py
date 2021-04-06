@@ -1,9 +1,13 @@
 
+
 ##
+##  Packages.
 import torch, torchvision
 import torch.nn as nn
 
+
 ##
+##  The [model] class.
 class model(torch.nn.Module):
 
     def __init__(self):
@@ -11,20 +15,18 @@ class model(torch.nn.Module):
         super(model, self).__init__()
         pass
 
-        self.layer = {
-            "net"    : torchvision.models.resnet18(pretrained=True),
-            "output" : nn.Linear(1000, 24)
-        }
+        self.layer = nn.Sequential(
+            torchvision.models.resnet18(pretrained=True),
+            nn.Linear(1000, 24) 
+        )
         pass
 
     def forward(self, feature):
 
-        score = {}
-        score['net']    = self.layer['net'](feature)
-        score['output'] = self.layer['output'](score['net'])
+        score = self.layer(feature)
         pass
 
-        output = score['output']
+        output = score
         return(output)
 
     def load(self, path):
@@ -32,3 +34,4 @@ class model(torch.nn.Module):
         weight = torch.load(path, map_location='cpu')
         self.load_state_dict(weight)
         pass
+

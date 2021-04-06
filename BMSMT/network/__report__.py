@@ -1,9 +1,13 @@
 
-##
-import os, pandas, json
 
 ##
-class history:
+##  Packages.
+import os, pandas, json
+
+
+##
+##  The [report] class.
+class report:
 
     def __init__(self, train=None, check=None, test=None):
 
@@ -32,15 +36,13 @@ class history:
             self.test.columns  = ["test "  + i for i in self.test.columns.tolist() ]
             pass        
 
-        ##  Convert to table.
         self.summary = pandas.concat([self.train, self.check, self.test], axis=1)
         pass
 
-    ##  
-    def save(self, folder, name='summary.csv'):
+    def save(self, folder):
 
         os.makedirs(folder, exist_ok=True)
-        self.summary.to_csv(os.path.join(folder, name), index=False)
+        self.summary.to_csv(os.path.join(folder, 'summary.csv'), index=False)
         pass
 
 ##

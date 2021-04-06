@@ -1,33 +1,77 @@
 
-##
-import data, network
 
 ##
-train = {}
-check = {}
+##  Packages.
+import data
+
 
 ##
-train['table'], check['table'] = data.validation.split(data.table.read("SOURCE/TRAIN/CSV/ANNOTATION.csv"))
+##  Every from table.
+table = data.table.read("SOURCE/CSV/ANNOTATION.csv")
+
 
 ##
-train['dataset'] = data.dataset(train['table'], image=data.process.image.learn, target=data.process.target.learn)
+##  Create train, check, test.
+train, check, test = data.validation.split(table)
+
+
+##
+##
+train['dataset'] = data.dataset(train['table'], image=data.process.image.learn , target=data.process.target.learn )
 check['dataset'] = data.dataset(check['table'], image=data.process.image.review, target=data.process.target.review)
-if(True):
-    train['dataset'].__getitem__(1)
-    check['dataset'].__getitem__(1)
-    pass
+test['dataset']  = data.dataset(test['table'] , image=data.process.image.review, target=data.process.target.review)
+
 
 ##
-loader = data.loader(train=train['dataset'], check=check['dataset'])
-if(True):
-    next(iter(loader.train))
-    next(iter(loader.check))
-    pass
+##
+loader = data.loader(train=train['dataset'], check=check['dataset'], test=test['dataset'])
+loader.available("train")
+loader.available("check")
+loader.available("test" )
 
-model     = network.model
-help(network.model)
-x = next(iter(loader.check))
-len(x)
-model(x['image'])
-criterion = network.criterion.entropy()
-optimizer = network.optimizer.adam(model)
+
+##
+##
+import network
+
+
+##
+##
+model     = network.model()
+criterion = network.criterion.mae()
+
+
+##
+##
+optimizer = network.optimizer.sgd(model)
+
+
+##
+##
+machine  = network.machine(model=model, optimizer=optimizer, criterion=criterion, folder="LOG")
+
+
+##
+##
+iteration = 10
+history = {
+    'train' : {"mae":[]},
+    'check' : {"mae":[]}
+}
+for epoch in range(iteration):
+
+    ##
+    machine.learn(loader.train)
+    machine.measure(train=loader.train, check=loader.check)
+    machine.update(what='checkpoint')
+
+    ##
+    measurement = machine.measurement
+    history['train']['mae'] += [network.metric.mae(measurement['train']['target'], measurement['train']['likelihood'])]
+    history['check']['mae'] += [network.metric.mae(measurement['check']['target'], measurement['check']['likelihood'])]
+
+    ##
+    report = network.report(train=history['train'], check=history['check'])
+    report.summarize()
+    report.save(folder="LOG")
+    pass

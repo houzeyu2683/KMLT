@@ -81,20 +81,21 @@ def capture(label):
 
 ##  
 train = {
-    'csv':{
+    'table':{
         'label':pandas.read_csv("../DATA/BMSMT/TRAIN/CSV/LABEL.csv")
     }
 }
 
 ##
 group = {}
-for index, item in tqdm.tqdm(train['csv']['label'].iterrows(), total=len(train['csv']['label']), leave=False):
+for index, item in tqdm.tqdm(train['table']['label'].iterrows(), total=len(train['table']['label']), leave=False):
 
     origin = item['InChI'].split("InChI=1S/")[1].split('/')[0]
     group.update({index : capture(origin)})
     pass
 
 group = [group[key] for key in tqdm.tqdm(group, leave=False)]
+pass
 
 ##
 name = []
