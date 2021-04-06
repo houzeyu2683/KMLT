@@ -49,7 +49,7 @@ class machine:
             pass
         
         ##  Save model by folder and checkpoint.
-        path = os.path.join(self.folder, self.checkpoint)
+        path = os.path.join(self.folder, self.checkpoint+".weight")
         print("Save the checkpoint of model to {}.".format(path))
         torch.save(self.model.state_dict(), path)
         pass

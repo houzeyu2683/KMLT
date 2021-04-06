@@ -15,7 +15,7 @@ class metric:
     ##  Mean absolute error.
     def mae(target, likelihood):
 
-        score = metrics.mean_absolute_error(y_true=target, y_score=likelihood)
+        score = metrics.mean_absolute_error(y_true=target, y_pred=likelihood)
         return(score)
 
     ##  Area under curve.

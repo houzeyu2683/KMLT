@@ -38,5 +38,5 @@ count.head()
 ##
 source = 'SOURCE/TRAIN/CSV/'
 os.makedirs(source, exist_ok=True)
-count.to_csv(os.path.join(source, "COUNT.csv."), index=False)
+count.to_csv(os.path.join(source, "COUNT.csv"), index=False)
 

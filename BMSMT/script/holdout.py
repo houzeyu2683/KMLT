@@ -13,6 +13,9 @@ table = data.table.read("SOURCE/CSV/ANNOTATION.csv")
 ##
 ##  Create train, check, test.
 train, check, test = data.validation.split(table)
+if(False):
+    train['table'], check['table'], test['table'] = train['table'].sample(1000), check['table'].sample(1000), test['table'].sample(1000) 
+    pass
 
 
 ##
@@ -24,7 +27,7 @@ test['dataset']  = data.dataset(test['table'] , image=data.process.image.review,
 
 ##
 ##
-loader = data.loader(train=train['dataset'], check=check['dataset'], test=test['dataset'])
+loader = data.loader(train=train['dataset'], check=check['dataset'], test=test['dataset'], batch=128)
 loader.available("train")
 loader.available("check")
 loader.available("test" )
@@ -48,30 +51,32 @@ optimizer = network.optimizer.sgd(model)
 
 ##
 ##
-machine  = network.machine(model=model, optimizer=optimizer, criterion=criterion, folder="LOG")
+machine  = network.machine(model=model, optimizer=optimizer, criterion=criterion, device='cuda', folder="LOG", checkpoint="0")
 
 
 ##
 ##
-iteration = 10
+iteration = 50
 history = {
     'train' : {"mae":[]},
-    'check' : {"mae":[]}
+    'check' : {"mae":[]},
+    'test'  : {'mae':[]}
 }
 for epoch in range(iteration):
 
     ##
     machine.learn(loader.train)
-    machine.measure(train=loader.train, check=loader.check)
-    machine.update(what='checkpoint')
+    machine.measure(train=loader.train, check=loader.check, test=loader.test)
+    machine.update('checkpoint')
 
     ##
     measurement = machine.measurement
     history['train']['mae'] += [network.metric.mae(measurement['train']['target'], measurement['train']['likelihood'])]
     history['check']['mae'] += [network.metric.mae(measurement['check']['target'], measurement['check']['likelihood'])]
-
+    
     ##
     report = network.report(train=history['train'], check=history['check'])
     report.summarize()
     report.save(folder="LOG")
     pass
+
