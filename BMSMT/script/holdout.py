@@ -18,10 +18,9 @@ check['dataset'] = data.dataset(check['table'], image=data.process.image.review,
 test['dataset']  = data.dataset(test['table'] , image=data.process.image.review, target=data.process.target.review)
 
 ##
-loader = data.loader(train=train['dataset'], check=check['dataset'], test=test['dataset'], batch=128)
+loader = data.loader(train=train['dataset'], check=check['dataset'], batch=256)
 loader.available("train")
 loader.available("check")
-loader.available("test" )
 
 ##
 import network
