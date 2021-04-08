@@ -73,7 +73,7 @@ class machine:
                     'likelihood'    :[],
                     'target'        :[]
                 }
-                for batch in event[key]:
+                for batch in tqdm.tqdm(event[key], leave=False):
 
                     ##  Process batch.
                     image  = batch['image'].to(self.device)
