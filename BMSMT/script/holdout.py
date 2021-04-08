@@ -34,14 +34,14 @@ criterion = network.criterion.mae()
 optimizer = network.optimizer.sgd(model)
 
 ##
-machine  = network.machine(model=model, optimizer=optimizer, criterion=criterion, device='cuda', folder="SOURCE/LOG", checkpoint="0")
+folder = "SOURCE/LOG"
+machine  = network.machine(model=model, optimizer=optimizer, criterion=criterion, device='cuda', folder=folder, checkpoint="0")
 
 ##
-iteration = 25
+iteration = 10
 history = {
     'train' : {"mae":[]},
-    'check' : {"mae":[]},
-    'test'  : {'mae':[]}
+    'check' : {"mae":[]}
 }
 for epoch in range(iteration):
 
@@ -58,6 +58,6 @@ for epoch in range(iteration):
     ##
     report = network.report(train=history['train'], check=history['check'])
     report.summarize()
-    report.save(folder="SOURCE/LOG")
+    report.save(folder=folder)
     pass
 

@@ -9,25 +9,32 @@ table = {
     'order':pandas.read_csv('SOURCE/CSV/ORDER.csv')
 }
 
+image = []
+for index, item in tqdm.tqdm(table["label"].iterrows(), total=len(table["label"]), leave=False):
 
-for index, item in table["label"].iterrows():
-    break
+    i = item['image_id']
+    pass
+
+    if(item['type']=='train'):
+        
+        image += ["../DATA/BMSMT/TRAIN/PNG/" + i[0] + '/' + i[1] + '/' + i[2] + '/' + i + '.png']
+        pass
+    
+    if(item['type']=='test'):
+
+        image += ["../DATA/BMSMT/TEST/PNG/" + i[0] + '/' + i[1] + '/' + i[2] + '/' + i + '.png']
+        pass
+
+table["label"]['image'] = image
+
 
 ##
-train['']['label']['image'] = ["../DATA/BMSMT/TRAIN/PNG/" + i[0] + '/' + i[1] + '/' + i[2] + '/' + i + '.png' for i in train['table']['label']['image_id']]
-test['table']['label']['image']  = ["../DATA/BMSMT/TEST/PNG/" + i[0] + '/' + i[1] + '/' + i[2] + '/' + i + '.png' for i in test['table']['label']['image_id']]
-train['table']['label']['type'] = 'train'
-test['table']['label']['type']  = 'test'
+table['annotation'] = pandas.concat([table['label'], table['count'], table['order']], axis=1).reset_index(drop=True)
 
 ##
-train['table']['annotation'] = pandas.concat([train['table']['label'], train['table']['count'], train['table']['order']], axis=1)
-
-##
-annotation = pandas.concat([train['table']['annotation'], test['table']['label']],axis=0).reset_index(drop=True)
-annotation = annotation.fillna(0)
-
-##
-source = 'SOURCE/CSV/'
-os.makedirs(source, exist_ok=True)
-annotation.to_csv(os.path.join(source, 'ANNOTATION.csv'), index=False)
+folder = 'SOURCE/CSV/'
+title  = 'ANNOTATION.csv'
+path   = os.path.join(folder, title)
+os.makedirs(folder, exist_ok=True)
+table['annotation'].to_csv(path, index=False)
 

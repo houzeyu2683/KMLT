@@ -19,7 +19,7 @@ class machine:
         self.checkpoint = checkpoint
         pass
 
-        ##  Create the checkpoint folder.
+        ##  Create the folder for checkpoint and measurenent.
         os.makedirs(self.folder, exist_ok=True)
         pass
 
@@ -48,9 +48,9 @@ class machine:
             self.optimizer.step()
             pass
         
-        ##  Save model by folder and checkpoint.
+        ##  Save weight of model to folder.
         path = os.path.join(self.folder, self.checkpoint+".weight")
-        print("Save the checkpoint of model to {}.".format(path))
+        print("Save the weight of model to {}.".format(path))
         torch.save(self.model.state_dict(), path)
         pass
 
@@ -99,6 +99,7 @@ class machine:
                 print("End of measure the {}.".format(key))
                 pass
         
+        ##  Save the measurement to folder.
         path = os.path.join(self.folder, self.checkpoint + ".pickle")
         print("Save the checkpoint of measurement to {}.".format(path))
         with open(path, 'wb') as paper:

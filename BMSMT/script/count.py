@@ -2,13 +2,6 @@
 ##  Packages.
 import os, pandas, re, numpy, tqdm, pickle
 
-##
-train = {
-    'pickle':{
-        'element':'SOURCE/TRAIN/PICKLE/ELEMENT.pickle'
-    }
-}
-
 ##  
 with open('SOURCE/PICKLE/ELEMENT.pickle', 'rb') as paper:
 

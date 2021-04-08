@@ -81,7 +81,7 @@ def capture(label):
 
 ##  
 table = {
-    "label":pandas.read_csv("../DATA/BMSMT/TRAIN/CSV/LABEL.csv")
+    "label":pandas.read_csv("SOURCE/CSV/LABEL.csv")
 }
 
 ##
