@@ -14,6 +14,7 @@ table = data.table.read("SOURCE/CSV/ANNOTATION.csv")
 ##  Create train, check, test.
 train, check, test = data.validation.split(table)
 if(False):
+
     train['table'], check['table'], test['table'] = train['table'].sample(1000), check['table'].sample(1000), test['table'].sample(1000) 
     pass
 
