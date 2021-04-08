@@ -10,7 +10,7 @@ train = {
 }
 
 ##  
-with open(train['pickle']['element'], 'rb') as paper:
+with open('SOURCE/PICKLE/ELEMENT.pickle', 'rb') as paper:
 
     name, group = pickle.load(paper) 
     pass
@@ -36,7 +36,9 @@ count.columns = ["#"+i for i in count.columns]
 count.head()
 
 ##
-source = 'SOURCE/TRAIN/CSV/'
-os.makedirs(source, exist_ok=True)
-count.to_csv(os.path.join(source, "COUNT.csv"), index=False)
+folder = 'SOURCE/CSV/'
+title  = 'COUNT.csv'
+path   = os.path.join(folder, title)
+os.makedirs(folder, exist_ok=True)
+count.to_csv(path, index=False)
 

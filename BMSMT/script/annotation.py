@@ -3,21 +3,18 @@
 import os, pandas, re, numpy, tqdm, pickle
 
 ##
-train = {
-    "table":{
-        'label':pandas.read_csv("../DATA/BMSMT/TRAIN/CSV/LABEL.csv"),
-        'count':pandas.read_csv('SOURCE/TRAIN/CSV/COUNT.csv'),
-        'order':pandas.read_csv('SOURCE/TRAIN/CSV/ORDER.csv')
-    }
-}
-test = {
-    'table':{
-        'label':pandas.read_csv("../DATA/BMSMT/TEST/CSV/LABEL.csv")
-    }
+table = {
+    'label':pandas.read_csv("SOURCE/CSV/LABEL.csv"),
+    'count':pandas.read_csv('SOURCE/CSV/COUNT.csv'),
+    'order':pandas.read_csv('SOURCE/CSV/ORDER.csv')
 }
 
+
+for index, item in table["label"].iterrows():
+    break
+
 ##
-train['table']['label']['image'] = ["../DATA/BMSMT/TRAIN/PNG/" + i[0] + '/' + i[1] + '/' + i[2] + '/' + i + '.png' for i in train['table']['label']['image_id']]
+train['']['label']['image'] = ["../DATA/BMSMT/TRAIN/PNG/" + i[0] + '/' + i[1] + '/' + i[2] + '/' + i + '.png' for i in train['table']['label']['image_id']]
 test['table']['label']['image']  = ["../DATA/BMSMT/TEST/PNG/" + i[0] + '/' + i[1] + '/' + i[2] + '/' + i + '.png' for i in test['table']['label']['image_id']]
 train['table']['label']['type'] = 'train'
 test['table']['label']['type']  = 'test'
