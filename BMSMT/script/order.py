@@ -3,14 +3,7 @@
 import os, pandas, re, numpy, tqdm, pickle
 
 ##
-train = {
-    'pickle':{
-        'element':'SOURCE/TRAIN/PICKLE/ELEMENT.pickle'
-    }
-}
-
-##
-with open(train['pickle']['element'], 'rb') as paper:
+with open('SOURCE/PICKLE/ELEMENT.pickle', 'rb') as paper:
 
     name, group = pickle.load(paper) 
     pass
@@ -21,7 +14,7 @@ for item in group:
 
     for key in order:
 
-        order[key] += [0]
+        order[key] += [-1]
         pass
 
     for index, key in enumerate(item, 1):
@@ -33,7 +26,9 @@ order = pandas.DataFrame(order).reset_index(drop=True)
 order.columns = ["$"+i for i in order.columns]
 
 ##
-source = "SOURCE/TRAIN/CSV"
-os.makedirs(source, exist_ok=True)
-order.to_csv(os.path.join(source, "ORDER.csv"), index=False)
+folder = "SOURCE/CSV"
+title  = "ORDER.csv"
+path   = os.path.join(folder, title)
+os.makedirs(folder, exist_ok=True)
+order.to_csv(path, index=False)
 

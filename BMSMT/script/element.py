@@ -80,15 +80,13 @@ def capture(label):
     return(output)
 
 ##  
-train = {
-    'table':{
-        'label':pandas.read_csv("../DATA/BMSMT/TRAIN/CSV/LABEL.csv")
-    }
+table = {
+    "label":pandas.read_csv("SOURCE/CSV/LABEL.csv")
 }
 
 ##
 group = {}
-for index, item in tqdm.tqdm(train['table']['label'].iterrows(), total=len(train['table']['label']), leave=False):
+for index, item in tqdm.tqdm(table['label'].iterrows(), total=len(table['label']), leave=False):
 
     origin = item['InChI'].split("InChI=1S/")[1].split('/')[0]
     group.update({index : capture(origin)})
@@ -106,11 +104,12 @@ for i in tqdm.tqdm(group, leave=False):
 
 ##  Element.
 element = (name, group)
-source  = "SOURCE/TRAIN/PICKLE/"
-os.makedirs(source, exist_ok=True)
-with open(os.path.join(source, "ELEMENT.pickle"), 'wb') as paper:
+folder  = "SOURCE/PICKLE/"
+title   = "ELEMENT.pickle"
+path    = os.path.join(folder, title)
+os.makedirs(folder, exist_ok=True)
+with open(path, 'wb') as paper:
 
     pickle.dump(element, paper)
     pass
-
 
