@@ -12,7 +12,7 @@ class validation:
 
     def split(table, classification=None, ratio=0.2):
 
-        ##
+        ##  
         train = table.loc[table['type']=='train'].copy()
         test  = table.loc[table['type']=='test'].copy()
         pass

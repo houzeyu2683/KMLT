@@ -3,7 +3,8 @@
 import data
 
 ##  Every from table.
-table = data.table.read("SOURCE/CSV/ANNOTATION.csv")
+table = data.tabulation.read("SOURCE/CSV/ANNOTATION.csv")
+
 
 ##  Create train, check, test.
 train, check, test = data.validation.split(table)

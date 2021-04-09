@@ -6,12 +6,20 @@ import pandas
 
 
 ##
-##  The [table] class.
-class table:
+##  The [tabulation] class.
+class tabulation:
 
-    def read(path):
+    def read(path, skip=None):
 
         output = pandas.read_csv(path)
+
+        if(skip):
+
+            for key,value in skip.items():
+                
+                output = output.loc[output[key]!=value].copy()
+                pass
+
         return(output)
 
     def balance(table, target, size):
