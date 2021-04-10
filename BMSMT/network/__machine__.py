@@ -101,9 +101,16 @@ class machine:
 
         if(what=='checkpoint'):
             
-            self.checkpoint = str(int(self.checkpoint) + 1)
-            print("Update the checkpoint to {} for next iteration.".format(self.checkpoint))
-            pass
+            try:
+                
+                self.checkpoint = str(int(self.checkpoint) + 1)
+                print("Update the checkpoint to {} for next iteration.".format(self.checkpoint))
+                pass
+
+            except:
+
+                print("The checkpoint is not integer, ignore update checkpoint.")
+                pass
     
     ##
     def save(self):
