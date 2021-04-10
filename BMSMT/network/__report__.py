@@ -9,11 +9,12 @@ import os, pandas, json
 ##  The [report] class.
 class report:
 
-    def __init__(self, train=None, check=None, test=None):
+    def __init__(self, train=None, check=None, test=None, folder="LOG"):
 
-        self.train = train
-        self.check = check
-        self.test  = test
+        self.train  = train
+        self.check  = check
+        self.test   = test
+        self.folder = folder
         pass
     
     def summarize(self):
@@ -39,10 +40,11 @@ class report:
         self.summary = pandas.concat([self.train, self.check, self.test], axis=1)
         pass
 
-    def save(self, folder):
+    def save(self):
 
-        os.makedirs(folder, exist_ok=True)
-        self.summary.to_csv(os.path.join(folder, 'summary.csv'), index=False)
+        os.makedirs(self.folder, exist_ok=True)
+        path = os.path.join(self.folder, 'summary.csv')
+        self.summary.to_csv(path, index=False)
         pass
 
 ##

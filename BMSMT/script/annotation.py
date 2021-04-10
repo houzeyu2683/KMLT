@@ -27,14 +27,14 @@ for index, item in tqdm.tqdm(table["label"].iterrows(), total=len(table["label"]
 
 table["label"]['image'] = image
 
-
 ##
 table['annotation'] = pandas.concat([table['label'], table['count'], table['order']], axis=1).reset_index(drop=True)
 
 ##
+annotation = table['annotation']
 folder = 'SOURCE/CSV/'
 title  = 'ANNOTATION.csv'
 path   = os.path.join(folder, title)
 os.makedirs(folder, exist_ok=True)
-table['annotation'].to_csv(path, index=False)
+annotation.to_csv(path, index=False)
 

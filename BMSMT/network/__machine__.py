@@ -47,12 +47,6 @@ class machine:
             loss.backward()
             self.optimizer.step()
             pass
-        
-        ##  Save weight of model to folder.
-        path = os.path.join(self.folder, self.checkpoint+".weight")
-        print("Save the weight of model to {}.".format(path))
-        torch.save(self.model.state_dict(), path)
-        pass
 
     def measure(self, train=None, check=None, test=None):
 
@@ -99,14 +93,6 @@ class machine:
                 print("End of measure the {}.".format(key))
                 pass
         
-        ##  Save the measurement to folder.
-        path = os.path.join(self.folder, self.checkpoint + ".pickle")
-        print("Save the checkpoint of measurement to {}.".format(path))
-        with open(path, 'wb') as paper:
-
-            pickle.dump(measurement, paper)
-            pass
-        
         self.measurement = measurement
         pass
 
@@ -117,4 +103,21 @@ class machine:
             
             self.checkpoint = str(int(self.checkpoint) + 1)
             print("Update the checkpoint to {} for next iteration.".format(self.checkpoint))
+            pass
+    
+    ##
+    def save(self):
+
+        ##  Save weight of model to folder.
+        path = os.path.join(self.folder, self.checkpoint+".weight")
+        print("Save the weight of model to {}.".format(path))
+        torch.save(self.model.state_dict(), path)
+        pass
+
+        ##  Save the measurement to folder.
+        path = os.path.join(self.folder, self.checkpoint + ".pickle")
+        print("Save the checkpoint of measurement to {}.".format(path))
+        with open(path, 'wb') as paper:
+
+            pickle.dump(self.measurement, paper)
             pass

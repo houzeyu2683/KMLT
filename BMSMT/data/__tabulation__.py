@@ -8,61 +8,58 @@ import pandas
 ##
 ##  The [tabulation] class.
 class tabulation:
-
-    def read(path, skip=None):
+    
+    def read(path):
 
         output = pandas.read_csv(path)
-
-        if(skip):
-
-            for key,value in skip.items():
-                
-                output = output.loc[output[key]!=value].copy()
-                pass
-
         return(output)
 
-    def balance(table, target, size):
+    def skip(table, column, value):
 
-        output = []
-        for i in set(table[target]):
-
-            selection = table[table[target]==i]
-            pass
-        
-            if(len(selection)>size):
-
-                selection = selection.sample(size)
-                pass
-
-            else:
-
-                selection = selection.sample(size, replace=True)
-                pass
-
-            output = output + [selection]
-            pass
-
-        output = pandas.concat(output, axis=0)
+        output = table.loc[table[column]!=value].copy()
         return(output)
 
-    def unbalance(table, target, size):
+    # def balance(table, target, size):
 
-        group = []
-        for key, value in size.items():
+    #     output = []
+    #     for i in set(table[target]):
 
-            selection = table.loc[table[target]==key]
-            pass
+    #         selection = table[table[target]==i]
+    #         pass
+        
+    #         if(len(selection)>size):
 
-            if(len(selection)>value):
+    #             selection = selection.sample(size)
+    #             pass
+
+    #         else:
+
+    #             selection = selection.sample(size, replace=True)
+    #             pass
+
+    #         output = output + [selection]
+    #         pass
+
+    #     output = pandas.concat(output, axis=0)
+    #     return(output)
+
+    # def unbalance(table, target, size):
+
+    #     group = []
+    #     for key, value in size.items():
+
+    #         selection = table.loc[table[target]==key]
+    #         pass
+
+    #         if(len(selection)>value):
         
-                group += [selection.sample(value)]
-                pass
+    #             group += [selection.sample(value)]
+    #             pass
         
-            else:
+    #         else:
         
-                group += [selection.sample(value, replace=True)]
-                pass
+    #             group += [selection.sample(value, replace=True)]
+    #             pass
         
-        output = pandas.concat(group, axis=0)
-        return(output)
+    #     output = pandas.concat(group, axis=0)
+    #     return(output)

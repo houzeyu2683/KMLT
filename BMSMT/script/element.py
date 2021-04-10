@@ -93,7 +93,6 @@ for index, item in tqdm.tqdm(table['label'].iterrows(), total=len(table['label']
     pass
 
 group = [group[key] for key in tqdm.tqdm(group, leave=False)]
-pass
 
 ##
 name = []
@@ -103,7 +102,7 @@ for i in tqdm.tqdm(group, leave=False):
     pass
 
 ##  Element.
-element = (name, group)
+element = {"name":name, "group":group}
 folder  = "SOURCE/PICKLE/"
 title   = "ELEMENT.pickle"
 path    = os.path.join(folder, title)

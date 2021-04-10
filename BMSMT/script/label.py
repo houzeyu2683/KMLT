@@ -31,9 +31,10 @@ table['label'] = pandas.concat([table['train']['label'], table['test']['label']]
 table['label'].head()
 
 ##
+label  = table['label']
 folder = 'SOURCE/CSV/'
 title  = "LABEL.csv"
 path   = os.path.join(folder, title)
 os.makedirs(folder, exist_ok=True)
-table['label'].to_csv(path, index=False)
+label.to_csv(path, index=False)
 

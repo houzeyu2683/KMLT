@@ -5,8 +5,12 @@ import os, pandas, re, numpy, tqdm, pickle
 ##  
 with open('SOURCE/PICKLE/ELEMENT.pickle', 'rb') as paper:
 
-    name, group = pickle.load(paper) 
+    element = pickle.load(paper) 
     pass
+
+##
+name  = element['name']
+group = element['group']
 
 ##  
 count = {i:[] for i in name}
