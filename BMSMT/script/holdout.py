@@ -2,25 +2,32 @@
 ##  Packages.
 import data
 
-##  Every from table.
+##  Load table and skip real test data.
 table = data.tabulation.read("SOURCE/CSV/ANNOTATION.csv")
-table = data.tabulation.skip(table=table, column='type', value='test')
+table = data.tabulation.skip(table=table, column='mode', value='test')
 
-##  Create train, check.
-train, check = data.validation.split(table, classification=None, ratio=0.2)
-if(False):
+##  Debug or not.
+debug = True
+if(debug):
 
-    train['table'], check['table'] = train['table'].sample(2000), check['table'].sample(1000) 
+    sample = round(len(table)/15000)
+    table  = table.sample(sample)
     pass
 
-##
+##  Split table to train and check type.
+train, check = data.validation.split(table, classification=None, ratio=0.2)
+
+##  Initialize the dataset.
 train['dataset'] = data.dataset(train['table'], image=data.process.image.learn , target=data.process.target.learn )
 check['dataset'] = data.dataset(check['table'], image=data.process.image.review, target=data.process.target.review)
 
+
 ##
-loader = data.loader(train=train['dataset'], check=check['dataset'], batch=16)
-loader.available("train")
-loader.available("check")
+loader = data.loader(train=train['dataset'], check=check['dataset'], batch=4)
+if(loader.available("train") and loader.available("check")):
+
+    print("Loader work successfully.")
+    pass
 
 ##
 import network
@@ -43,24 +50,48 @@ history = {
     'check' : {"mae":[]}
 }
 for epoch in range(iteration):
+    break
 
-    ##  Build model.
+    ##  Learning process.
     machine.learn(loader.train)
     machine.measure(train=loader.train, check=loader.check)
-    machine.save()
+    machine.save("checkpoint")
+    machine.save("measurement")
     machine.update('checkpoint')
 
     ##  History of epoch.
     measurement = machine.measurement
-    history['train']['mae'] += [network.metric.mae(measurement['train']['target'], measurement['train']['likelihood'])]
-    history['check']['mae'] += [network.metric.mae(measurement['check']['target'], measurement['check']['likelihood'])]
+    history['train']['mae'] += [network.metric.mae(measurement['train']['target'].flatten(), measurement['train']['likelihood'].flatten())]
+    history['check']['mae'] += [network.metric.mae(measurement['check']['target'].flatten(), measurement['check']['likelihood'].flatten())]
     
     ##  Save the report.
-    report = network.report(train=history['train'], check=history['check'], folder=folder)
+    report = network.report(train=history['train'], check=history['check'])
     report.summarize()
     report.save()
     pass
 
+report.summary
+import torch
+import torch.nn as nn
+
+measurement['train']['target']
+
+torch.nn.KLDivLoss(measurement['train']['target'], measurement['train']['likelihood'][0,:,:])
+torch.squeeze(measurement['train']['target']).size()
+
+network.metric.mae(
+    measurement['check']['target'].flatten(),
+    measurement['check']['likelihood'].flatten()
+)
+
+x = torch.nn.KLDivLoss()
+x(torch.tensor(measurement['train']['target']), torch.tensor(measurement['train']['likelihood']))
+
+
+x = torch.tensor(measurement['check']['likelihood'][0,:,:])
+x.shape
+
+torch.argmax(x, dim=2)
 
 
 

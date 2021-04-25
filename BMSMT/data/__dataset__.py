@@ -2,18 +2,19 @@
 
 ##
 ##  Packages.
-import torch, os
+import torch, os, PIL.Image
 
 
 ##
-##  The [dataset] class.
+##  Class for dataset.
 class dataset(torch.utils.data.Dataset):
 
     def __init__(self, table, target=None, variable=None, image=None, text=None):
 
         self.table    = table
         pass
-
+        
+        ##  Define the process function for each type, case by case.
         self.target   = target
         self.variable = variable
         self.image    = image
@@ -27,29 +28,37 @@ class dataset(torch.utils.data.Dataset):
 
     def __getitem__(self, index):
 
+        ##  Handle batch, case by case.
+        batch = {"feature":[], "target":[]}
+        
+        ##  Select item by index.
         item  = self.table.iloc[index, :]
-        batch = {"target":[], "variable":[], "image":[], "text":[]}
-        pass
 
+        ##  Process variable, case by case.
         if(self.variable):
 
-            batch['variable'] = self.variable(item)
             pass
         
+        ##  Process image, case by case.
         if(self.image):
 
-            batch['image'] = self.image(item)
+            midden = PIL.Image.open(item['image']).convert("RGB")
+            batch['feature'] += [self.image(midden)]
             pass
-
+        
+        ##  Process text, case by case.
         if(self.text):
 
-            batch['text'] = self.text(item)
             pass
-
+        
+        ##  Process target, case by case.
         if(self.target):
 
-            batch['target'] = self.target(item)
+            midden = item['InChI']
+            batch['target'] += [self.target(midden)]
             pass
-
-        return(batch)
+        
+        ##  Handle outout, case by case.
+        output = batch['feature'][0], batch['target'][0]
+        return(output)
 

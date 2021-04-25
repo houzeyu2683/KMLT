@@ -7,7 +7,7 @@ from torchvision import transforms as kit
 
 
 ##
-##  The [image] class.
+##  Class for process image, case by case.
 class image:
 
     def learn(item):
@@ -24,8 +24,7 @@ class image:
             kit.Normalize(mean = mu, std = sigma)
         ]
         action = kit.Compose(pipeline)
-        link   = PIL.Image.open(item['image']).convert("RGB")
-        output = action(link).type(torch.float)
+        output = action(item).type(torch.float)
         return(output)
 
     def review(item):
@@ -39,6 +38,5 @@ class image:
             kit.Normalize(mean = mu, std = sigma)      
         ]
         action = kit.Compose(pipeline)
-        link   = PIL.Image.open(item['image']).convert("RGB")
-        output = action(link).type(torch.float)
+        output = action(item).type(torch.float)
         return(output)

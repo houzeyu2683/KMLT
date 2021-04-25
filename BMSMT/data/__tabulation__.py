@@ -6,7 +6,7 @@ import pandas
 
 
 ##
-##  The [tabulation] class.
+##  Class for tabulation.
 class tabulation:
     
     def read(path):

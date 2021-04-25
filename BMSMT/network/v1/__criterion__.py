@@ -10,7 +10,7 @@ import torch
 class criterion:
 
     ##  Cross entropy loss.
-    def cel(weight=None):
+    def entropy(weight=None):
 
         ##  Classification weight.
         if(weight):

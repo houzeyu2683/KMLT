@@ -6,15 +6,14 @@ import os, pandas, json
 
 
 ##
-##  The [report] class.
+##  Class for report.
 class report:
 
-    def __init__(self, train=None, check=None, test=None, folder="LOG"):
+    def __init__(self, train=None, check=None, test=None):
 
         self.train  = train
         self.check  = check
         self.test   = test
-        self.folder = folder
         pass
     
     def summarize(self):
@@ -40,10 +39,10 @@ class report:
         self.summary = pandas.concat([self.train, self.check, self.test], axis=1)
         pass
 
-    def save(self):
+    def save(self, folder):
 
-        os.makedirs(self.folder, exist_ok=True)
-        path = os.path.join(self.folder, 'summary.csv')
+        os.makedirs(folder, exist_ok=True)
+        path = os.path.join(folder, 'report.csv')
         self.summary.to_csv(path, index=False)
         pass
 

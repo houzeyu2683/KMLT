@@ -1,40 +1,48 @@
 
-##  Packages.
-import os, pandas, re, numpy, tqdm, pickle
+##
+import pandas, os, tqdm
 
 ##
-table = {
-    'label':pandas.read_csv("SOURCE/CSV/LABEL.csv"),
-    'count':pandas.read_csv('SOURCE/CSV/COUNT.csv'),
-    'order':pandas.read_csv('SOURCE/CSV/ORDER.csv')
-}
+group = []
+for mode in ['train', 'test']:
 
-image = []
-for index, item in tqdm.tqdm(table["label"].iterrows(), total=len(table["label"]), leave=False):
+    if(mode=='train'):
 
-    i = item['image_id']
-    pass
-
-    if(item['type']=='train'):
+        ##
+        table = pandas.read_csv("../DATA/BMSMT/TRAIN/CSV/LABEL.csv")
+        table['mode'] = 'train'
         
-        image += ["../DATA/BMSMT/TRAIN/PNG/" + i[0] + '/' + i[1] + '/' + i[2] + '/' + i + '.png']
+        ##
+        folder = "../DATA/BMSMT/TRAIN/PNG/"
+        table['image']  = [folder + i[0] + '/' + i[1] + '/' + i[2] + '/' + i + '.png' for i in table['image_id']]
+        table['length'] = [len(i) for i in table['InChI']]
+        group += [table]
         pass
-    
-    if(item['type']=='test'):
 
-        image += ["../DATA/BMSMT/TEST/PNG/" + i[0] + '/' + i[1] + '/' + i[2] + '/' + i + '.png']
+    if(mode=='test'):
+
+        ##
+        table = pandas.read_csv("../DATA/BMSMT/TEST/CSV/LABEL.csv")
+        table['mode']  = 'test'
+        table['InChI'] = "InChI=1S/"        
+
+        ##
+        folder = "../DATA/BMSMT/TEST/PNG/"
+        table['image']  = [folder + i[0] + '/' + i[1] + '/' + i[2] + '/' + i + '.png' for i in table['image_id']]
+        table['length'] = [len(i) for i in table['InChI']]        
+        group += [table]
         pass
-
-table["label"]['image'] = image
 
 ##
-table['annotation'] = pandas.concat([table['label'], table['count'], table['order']], axis=1).reset_index(drop=True)
+annotation = pandas.concat(group)
+annotation.tail()
 
 ##
-annotation = table['annotation']
-folder = 'SOURCE/CSV/'
-title  = 'ANNOTATION.csv'
-path   = os.path.join(folder, title)
-os.makedirs(folder, exist_ok=True)
+annotation['InChI'] = [i+'.' for i in annotation['InChI']]
+
+
+##
+path = "SOURCE/CSV/ANNOTATION.csv"
+os.makedirs(os.path.dirname(path), exist_ok=True)
 annotation.to_csv(path, index=False)
 

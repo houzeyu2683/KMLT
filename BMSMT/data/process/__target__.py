@@ -2,28 +2,44 @@
 
 ##
 ##  Packages.
-import torch
+import torch, pickle, numpy
 
 
 ##
-##  The [target] class.
+##  Dictionary, high level customization, case by case.
+path = "SOURCE/PICKLE/DICTIONARY.pickle"
+with open(path, 'rb') as paper:
+
+    dictionary = pickle.load(paper)
+    pass
+
+
+##
+##  Projection, high level customization, case by case.
+projection = numpy.eye(len(dictionary), k=0)
+
+
+##
+##  Class for process target, case by case.
 class target:
 
     def learn(item):
 
-        key = [
-            '$C', '$Cl', '$N', '$Si', '$P', '$Br', '$I', '$S', '$F', '$B', '$O', '$H',
-            '#C', '#Cl', '#N', '#Si', '#P', '#Br', '#I', '#S', '#F', '#B', '#O', '#H'
-        ]        
-        output = torch.tensor(item[key], dtype=torch.long)
+        length  = 512
+        padding = 0
+        value   = [dictionary[i] for i in list(item)]
+        index   = value + [padding] * (length-len(value))
+        code    = numpy.concatenate([numpy.expand_dims(projection[:,i], axis=1) for i in index], axis=1)
+        output  = torch.tensor(code, dtype=torch.float)
         return(output)
 
     def review(item):
 
-        key = [
-            '$C', '$Cl', '$N', '$Si', '$P', '$Br', '$I', '$S', '$F', '$B', '$O', '$H',
-            '#C', '#Cl', '#N', '#Si', '#P', '#Br', '#I', '#S', '#F', '#B', '#O', '#H'
-        ]        
-        output = torch.tensor(item[key], dtype=torch.long)
+        length  = 512
+        padding = 0
+        value   = [dictionary[i] for i in list(item)]
+        index   = value + [padding] * (length-len(value))
+        code    = numpy.concatenate([numpy.expand_dims(projection[:,i], axis=1) for i in index], axis=1)
+        output  = torch.tensor(code, dtype=torch.float)
         return(output)
 
