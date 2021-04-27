@@ -31,9 +31,9 @@ class metric:
         return(score)
 
     ##  Cross entropy loss.
-    def cel(target, likelihood):
+    def cel(target, likelihood, label=None):
         
-        score = metrics.log_loss(y_true=target, y_pred=likelihood)
+        score = metrics.log_loss(y_true=target, y_pred=likelihood, labels=label)
         return(score)
 
     ##  Confusion matrix.

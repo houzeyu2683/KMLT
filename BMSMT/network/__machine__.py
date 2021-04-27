@@ -34,13 +34,15 @@ class machine:
 
             ##  Handle batch.
             feature, target = batch
-            feature, target = feature.to(self.device), target.to(self.device)
-            batch = feature, target
+            feature = feature.to(self.device)
+            target  = target.to(self.device)
+            batch   = feature
 
             ##  Update weight.
             self.optimizer.zero_grad()
+            # output = torch.flatten(self.model(batch), 0, 1)
             output = self.model(batch)
-            loss   = self.criterion.to(self.device)(output[0], output[1])
+            loss   = self.criterion.to(self.device)(output.squeeze(0), torch.flatten(target))
             loss.backward()
             self.optimizer.step()
             pass
@@ -69,10 +71,10 @@ class machine:
                     ##  Handle batch.
                     feature, target = batch
                     feature, target = feature.to(self.device), target.to(self.device)
-                    batch = feature, target
+                    batch = feature
 
                     ##  Evaluation.
-                    likelihood, target = self.model(batch)
+                    likelihood = self.model(batch)
                     item['likelihood']  += [likelihood.detach().cpu()]
                     item['target']      += [target.detach().cpu()]
                     pass
@@ -118,12 +120,30 @@ class machine:
             try:
                 
                 self.checkpoint = str(int(self.checkpoint) + 1)
-                print("Update the checkpoint to {} for next iteration.".format(self.checkpoint))
+                print("Update the checkpoint to {} for next iteration.\n".format(self.checkpoint))
                 pass
 
             except:
 
-                print("The checkpoint is not integer, ignore update checkpoint.")
+                print("The checkpoint is not integer, ignore update checkpoint.\n")
                 pass
 
 
+
+
+
+# import torch
+# import torch.nn as nn
+# loss = nn.CrossEntropyLoss()
+
+# x = torch.randn((2,6,3))
+# y = torch.randint(0,3,(2,6))
+# x.shape
+# y.shape
+# loss(x[0,:,:], y[0,:])
+
+# x[0,:,:]
+# output.shape
+# target = target.to('cuda')
+# torch.flatten(target).shape
+# loss   = criterion.to('cuda')(output, torch.flatten(target))

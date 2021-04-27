@@ -6,7 +6,7 @@ import torch
 
 
 ##
-##  The [criterion] class.
+##  Class for criterion.
 class criterion:
 
     ##  Cross entropy loss.
@@ -31,3 +31,6 @@ class criterion:
 
         loss = torch.nn.L1Loss()
         return(loss)
+
+
+

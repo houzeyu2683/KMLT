@@ -16,7 +16,7 @@ with open(path, 'rb') as paper:
 
 ##
 ##  Projection, high level customization, case by case.
-projection = numpy.eye(len(dictionary), k=0)
+## projection = numpy.eye(len(dictionary), k=0)
 
 
 ##
@@ -29,8 +29,9 @@ class target:
         padding = 0
         value   = [dictionary[i] for i in list(item)]
         index   = value + [padding] * (length-len(value))
-        code    = numpy.concatenate([numpy.expand_dims(projection[:,i], axis=1) for i in index], axis=1)
-        output  = torch.tensor(code, dtype=torch.float)
+        # torch.argmax(torch.tensor(code), 0)
+        # code    = numpy.concatenate([numpy.expand_dims(projection[:,i], axis=1) for i in index], axis=1)
+        output  = torch.tensor(index, dtype=torch.long)
         return(output)
 
     def review(item):
@@ -39,7 +40,7 @@ class target:
         padding = 0
         value   = [dictionary[i] for i in list(item)]
         index   = value + [padding] * (length-len(value))
-        code    = numpy.concatenate([numpy.expand_dims(projection[:,i], axis=1) for i in index], axis=1)
-        output  = torch.tensor(code, dtype=torch.float)
+        # code    = numpy.concatenate([numpy.expand_dims(projection[:,i], axis=1) for i in index], axis=1)
+        output  = torch.tensor(index, dtype=torch.long)
         return(output)
 

@@ -16,7 +16,7 @@ class model(torch.nn.Module):
         pass
         
         ##  Word number.
-        word = 95
+        word = 94
 
         ##  Sequence length.
         sequence = 512
@@ -27,7 +27,7 @@ class model(torch.nn.Module):
             "sequential":nn.ModuleDict({str(i):nn.Linear(1000, word) for i in range(sequence)}),
             "rnn":nn.GRU(word, word, 2),
             "attention":nn.TransformerEncoderLayer(d_model=word, nhead=1),
-            "embedded":nn.Embedding(word, word),
+            # "embedded":nn.Embedding(word, word),
             "probable":nn.Softmax(dim=2)
         }
         self.layer = nn.ModuleDict(layer)
@@ -36,8 +36,8 @@ class model(torch.nn.Module):
     def forward(self, batch):
 
         ##  Handle batch.
-        feature, target = batch
-        midden = {"feature":None, "target":None}
+        feature = batch
+        midden = {"feature":None}
 
         ##  Feature forward.
         midden['feature']    = self.layer['convolutional'](feature)
@@ -47,12 +47,12 @@ class model(torch.nn.Module):
         midden['feature']    = self.layer['attention'](midden['feature'])
         midden['feature']    = self.layer['probable'](midden['feature'])
 
-        ##  Target forward.
-        midden['target']    = self.layer['embedded'](target)
-        midden['target']    = self.layer['probable'](midden['target'])
+        # ##  Target forward.
+        # midden['target']    = self.layer['embedded'](target)
+        # midden['target']    = self.layer['probable'](midden['target'])
 
         ##  Handle output.
-        output = midden['feature'], midden['target']
+        output = midden['feature']
         return(output)
 
     def load(self, path):
@@ -91,11 +91,20 @@ class model(torch.nn.Module):
 
 
 
+# import torch
+# import torch.nn as nn
+# x = torch.randn((2,6,3))
+# y = torch.randint(0,3, (2, 6))
+# x.shape
+# y.shape
+# xx = torch.flatten(x, 0, 1)
+# yy = torch.flatten(y)
+# loss = nn.CrossEntropyLoss()
+# loss(xx, yy)
 
+# y.shape
+# xx.shape
 
-
-
-##
 ##
 # feature = torch.randn((16, 3, 224, 226))
 # target  = torch.randint(0, 27, (16, 512))
