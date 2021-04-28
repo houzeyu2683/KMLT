@@ -34,7 +34,7 @@ with open(path, "wb") as paper:
     pickle.dump(dictionary, paper)
     pass
 
-dictionary
+# dictionary
 ##
 # dictionary['weight'].values()
 

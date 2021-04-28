@@ -10,7 +10,7 @@ table = data.tabulation.filter(table=table, column='mode', value='train')
 debug = True
 if(debug):
 
-    number = round(len(table)/15000)
+    number = round(len(table)/1000)
     table  = table.sample(number)
     pass
 
