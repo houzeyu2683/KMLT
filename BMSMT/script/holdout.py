@@ -1,17 +1,17 @@
 
 ##  Packages.
-import data
+import data, network
 
 ##  Load table and skip real test data.
 table = data.tabulation.read("SOURCE/CSV/ANNOTATION.csv")
-table = data.tabulation.skip(table=table, column='mode', value='test')
+table = data.tabulation.filter(table=table, column='mode', value='train')
 
 ##  Debug or not.
 debug = True
 if(debug):
 
-    sample = round(len(table)/15000)
-    table  = table.sample(sample)
+    number = round(len(table)/15000)
+    table  = table.sample(number)
     pass
 
 ##  Split table to train and check type.
@@ -25,7 +25,6 @@ check['size'] = len(check['table'])
 train['dataset'] = data.dataset(train['table'], image=data.process.image.learn , target=data.process.target.learn )
 check['dataset'] = data.dataset(check['table'], image=data.process.image.review, target=data.process.target.review)
 
-
 ##
 loader = data.loader(train=train['dataset'], check=check['dataset'], batch=1)
 if(loader.available("train") and loader.available("check")):
@@ -34,11 +33,8 @@ if(loader.available("train") and loader.available("check")):
     pass
 
 ##
-import network
-
-##
 model     = network.model()
-criterion = network.criterion.cel(weight=[i for i in reversed(range(94))])
+criterion = network.criterion.cel(weight=data.process.dictionary['weight'])
 
 ##
 optimizer = network.optimizer.adam(model)
@@ -79,8 +75,8 @@ for epoch in range(iteration):
 
 
 
-measurement['check']['likelihood'][0,:][511,:]
-measurement['check']['target'][0]
-# import numpy
-numpy.argmax(measurement['check']['likelihood'][0,:], axis=1)
+# measurement['check']['likelihood'][0,:][511,:]
+# measurement['check']['target'][0]
+# # import numpy
+# numpy.argmax(measurement['check']['likelihood'][0,:], axis=1)
 

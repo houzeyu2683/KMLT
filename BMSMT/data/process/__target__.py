@@ -27,7 +27,7 @@ class target:
 
         length  = 512
         padding = 0
-        value   = [dictionary[i] for i in list(item)]
+        value   = [dictionary['character'][i] for i in list(item)]
         index   = value + [padding] * (length-len(value))
         # torch.argmax(torch.tensor(code), 0)
         # code    = numpy.concatenate([numpy.expand_dims(projection[:,i], axis=1) for i in index], axis=1)
@@ -38,7 +38,7 @@ class target:
 
         length  = 512
         padding = 0
-        value   = [dictionary[i] for i in list(item)]
+        value   = [dictionary['character'][i] for i in list(item)]
         index   = value + [padding] * (length-len(value))
         # code    = numpy.concatenate([numpy.expand_dims(projection[:,i], axis=1) for i in index], axis=1)
         output  = torch.tensor(index, dtype=torch.long)

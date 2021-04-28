@@ -1,47 +1,55 @@
 
-##
+##  Packages.
 import pandas, os, tqdm
 
-##
+##  Group of table of data.
 group = []
 for mode in ['train', 'test']:
 
     if(mode=='train'):
 
-        ##
+        ##  Load table.
         table = pandas.read_csv("../DATA/BMSMT/TRAIN/CSV/LABEL.csv")
         table['mode'] = 'train'
         
-        ##
+        ##  Information.
         folder = "../DATA/BMSMT/TRAIN/PNG/"
         table['image']  = [folder + i[0] + '/' + i[1] + '/' + i[2] + '/' + i + '.png' for i in table['image_id']]
         table['length'] = [len(i) for i in table['InChI']]
+
+        ##  Append to group.
         group += [table]
         pass
 
     if(mode=='test'):
 
-        ##
+        ##  Load table.
         table = pandas.read_csv("../DATA/BMSMT/TEST/CSV/LABEL.csv")
         table['mode']  = 'test'
         table['InChI'] = "InChI=1S/"        
 
-        ##
+        ##  Information.
         folder = "../DATA/BMSMT/TEST/PNG/"
         table['image']  = [folder + i[0] + '/' + i[1] + '/' + i[2] + '/' + i + '.png' for i in table['image_id']]
         table['length'] = [len(i) for i in table['InChI']]        
+
+        ##  Append to group.
         group += [table]
         pass
 
-##
-annotation = pandas.concat(group)
-annotation.tail()
+##  Combination.
+annotation = pandas.concat(group).reset_index(drop=True)
 
-##
-annotation['InChI'] = [i+'.' for i in annotation['InChI']]
+##  Check the target, "InChI" column.
+##  I make sure the symbol '.' does not exist in this column.
+##  Define the '.' symbol is the padding of sequence.
+##  The max length of sequence is 403.
+##  Define the length of sequence is 512.
+length = 512
+annotation['InChI'] = annotation['InChI'].str.pad(width=length, side='right', fillchar='.')
 
-
-##
+##  Save the annotation.
+annotation.head()
 path = "SOURCE/CSV/ANNOTATION.csv"
 os.makedirs(os.path.dirname(path), exist_ok=True)
 annotation.to_csv(path, index=False)
