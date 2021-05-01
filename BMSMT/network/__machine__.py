@@ -40,9 +40,8 @@ class machine:
 
             ##  Update weight.
             self.optimizer.zero_grad()
-            # output = torch.flatten(self.model(batch), 0, 1)
-            output = self.model(batch)
-            loss   = self.criterion.to(self.device)(output.squeeze(0), torch.flatten(target))
+            output = self.model(batch).flatten(0,1)
+            loss   = self.criterion.to(self.device)(output, target.flatten())
             loss.backward()
             self.optimizer.step()
             pass
