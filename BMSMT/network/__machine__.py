@@ -6,7 +6,7 @@ import os, tqdm, torch, numpy, pickle
 
 
 ##
-##  The [machine] class.
+##  Class for machine learning process, case by case.
 class machine:
 
     def __init__(self, model, optimizer=None, criterion=None, device='cuda', folder="LOG", checkpoint="0"):
@@ -32,32 +32,30 @@ class machine:
 
         for batch in tqdm.tqdm(train, leave=False):
 
-            ##  Process batch.
-            image  = batch['image'].to(self.device)
-            target = batch['target'].to(self.device)
-
-            ##  Process feature and target.
-            feature = image
-            target  = target
+            ##  Handle batch.
+            feature, target = batch
+            feature = feature.to(self.device)
+            target  = target.to(self.device)
+            batch   = feature
 
             ##  Update weight.
             self.optimizer.zero_grad()
-            output = self.model(feature)
-            loss   = self.criterion.to(self.device)(output, target)
+            output = self.model(batch).flatten(0,1)
+            loss   = self.criterion.to(self.device)(output, target.flatten())
             loss.backward()
             self.optimizer.step()
             pass
 
     def measure(self, train=None, check=None, test=None):
 
-        ##  
+        ##  Measurement.
         measurement = {}
 
         ##  Mode of evaluation.
         self.model.eval()
         self.model = self.model.to(self.device)
 
-        ##
+        ##  Event.
         event = {'train':train, "check":check, "test":test}
         for key in event:
 
@@ -69,23 +67,19 @@ class machine:
                 }
                 for batch in tqdm.tqdm(event[key], leave=False):
 
-                    ##  Process batch.
-                    image  = batch['image'].to(self.device)
-                    target = batch['target'].to(self.device)
+                    ##  Handle batch.
+                    feature, target = batch
+                    feature, target = feature.to(self.device), target.to(self.device)
+                    batch = feature
 
-                    ##  Process feature and target.
-                    feature = image
-                    target  = target
-
-                    ##  Prediction.
-                    likelihood = self.model(feature)
-                    prediction = likelihood
-                    item['likelihood']  += [likelihood.cpu().detach().numpy()]
-                    item['target']      += [target.cpu().detach().numpy()]
+                    ##  Evaluation.
+                    likelihood = self.model(batch)
+                    item['likelihood']  += [likelihood.detach().cpu()]
+                    item['target']      += [target.detach().cpu()]
                     pass
-
-                item['likelihood']  = numpy.concatenate(item['likelihood'], axis=0)
-                item['target']      = numpy.concatenate(item['target'], axis=0)
+                
+                item['likelihood'] = torch.cat(item['likelihood'], dim=0).numpy()
+                item['target']     = torch.cat(item['target'], dim=0).numpy()
                 pass
 
                 ##  Insert measurement.
@@ -96,7 +90,28 @@ class machine:
         self.measurement = measurement
         pass
 
-    ##  
+    def save(self, what='checkpoint'):
+
+        ##  Save the checkpoint.
+        if(what=='checkpoint'):
+
+            path = os.path.join(self.folder, self.checkpoint+".checkpoint")
+            torch.save(self.model.state_dict(), path)
+            print("Save the weight of model to {}.".format(path))
+            pass
+
+        ##  Save the measurement.
+        if(what=='measurement'):    
+
+            path = os.path.join(self.folder, self.checkpoint + ".measurement")
+            with open(path, 'wb') as paper:
+
+                pickle.dump(self.measurement, paper)
+                pass
+
+            print("Save the checkpoint of measurement to {}.".format(path))
+            pass
+  
     def update(self, what='checkpoint'):
 
         if(what=='checkpoint'):
@@ -104,27 +119,30 @@ class machine:
             try:
                 
                 self.checkpoint = str(int(self.checkpoint) + 1)
-                print("Update the checkpoint to {} for next iteration.".format(self.checkpoint))
+                print("Update the checkpoint to {} for next iteration.\n".format(self.checkpoint))
                 pass
 
             except:
 
-                print("The checkpoint is not integer, ignore update checkpoint.")
+                print("The checkpoint is not integer, ignore update checkpoint.\n")
                 pass
-    
-    ##
-    def save(self):
 
-        ##  Save weight of model to folder.
-        path = os.path.join(self.folder, self.checkpoint+".weight")
-        print("Save the weight of model to {}.".format(path))
-        torch.save(self.model.state_dict(), path)
-        pass
 
-        ##  Save the measurement to folder.
-        path = os.path.join(self.folder, self.checkpoint + ".pickle")
-        print("Save the checkpoint of measurement to {}.".format(path))
-        with open(path, 'wb') as paper:
 
-            pickle.dump(self.measurement, paper)
-            pass
+
+
+# import torch
+# import torch.nn as nn
+# loss = nn.CrossEntropyLoss()
+
+# x = torch.randn((2,6,3))
+# y = torch.randint(0,3,(2,6))
+# x.shape
+# y.shape
+# loss(x[0,:,:], y[0,:])
+
+# x[0,:,:]
+# output.shape
+# target = target.to('cuda')
+# torch.flatten(target).shape
+# loss   = criterion.to('cuda')(output, torch.flatten(target))

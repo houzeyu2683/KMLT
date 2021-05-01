@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 
 
 ##
-##  The [loader] class.
+##  Class for loader of dataset.
 class loader:
 
     def __init__(self, train=None, check=None, test=None, batch=32):

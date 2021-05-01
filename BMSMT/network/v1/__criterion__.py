@@ -6,11 +6,11 @@ import torch
 
 
 ##
-##  Class for criterion.
+##  The [criterion] class.
 class criterion:
 
     ##  Cross entropy loss.
-    def cel(weight=None):
+    def entropy(weight=None):
 
         ##  Classification weight.
         if(weight):
@@ -31,6 +31,3 @@ class criterion:
 
         loss = torch.nn.L1Loss()
         return(loss)
-
-
-

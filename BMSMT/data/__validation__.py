@@ -7,7 +7,7 @@ from sklearn.model_selection import StratifiedKFold, KFold, train_test_split
 
 
 ##
-##  The [validation] class.
+##  Class for validation.
 class validation:
 
     def split(table, classification=None, ratio=0.2):
