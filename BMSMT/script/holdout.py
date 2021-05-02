@@ -26,7 +26,7 @@ train['dataset'] = data.dataset(train['table'], image=data.process.image.learn ,
 check['dataset'] = data.dataset(check['table'], image=data.process.image.review, target=data.process.target.review)
 
 ##
-loader = data.loader(train=train['dataset'], check=check['dataset'], batch=108)
+loader = data.loader(train=train['dataset'], check=check['dataset'], batch=64)
 if(loader.available("train") and loader.available("check")):
 
     print("Loader work successfully.")
