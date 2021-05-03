@@ -73,7 +73,7 @@ class machine:
 
                     ##  Evaluation item.
                     likelihood = self.model(batch)
-                    cost = self.criterion(likelihood.detach().cpu().flatten(0,1), target.detach().cpu().flatten())
+                    cost = self.criterion(likelihood.detach().flatten(0,1), target.detach().flatten()).cpu()
                     item['cost']  += [cost.numpy().item(0)]
                     pass
                 
