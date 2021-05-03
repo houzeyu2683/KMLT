@@ -62,8 +62,7 @@ class machine:
             if(event[key]):
 
                 item = {
-                    'likelihood'    :[],
-                    'target'        :[]
+                    'cost' :[]
                 }
                 for batch in tqdm.tqdm(event[key], leave=False):
 
@@ -72,14 +71,14 @@ class machine:
                     feature, target = feature.to(self.device), target.to(self.device)
                     batch = feature
 
-                    ##  Evaluation.
+                    ##  Evaluation item.
                     likelihood = self.model(batch)
-                    item['likelihood']  += [likelihood.detach().cpu()]
-                    item['target']      += [target.detach().cpu()]
+                    cost = self.criterion(likelihood.detach().cpu().flatten(0,1), target.detach().cpu().flatten())
+                    item['cost']  += [cost.numpy().item(0)]
                     pass
                 
-                item['likelihood'] = torch.cat(item['likelihood'], dim=0).numpy()
-                item['target']     = torch.cat(item['target'], dim=0).numpy()
+                ##  Summarize item.
+                item['cost'] = numpy.mean(item['cost'])
                 pass
 
                 ##  Insert measurement.

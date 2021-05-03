@@ -7,7 +7,7 @@ table = data.tabulation.read("SOURCE/CSV/ANNOTATION.csv")
 table = data.tabulation.filter(table=table, column='mode', value='train')
 
 ##  Debug or not.
-debug = False
+debug = True
 if(debug):
 
     number = round(len(table)/1000)
@@ -26,7 +26,7 @@ train['dataset'] = data.dataset(train['table'], image=data.process.image.learn ,
 check['dataset'] = data.dataset(check['table'], image=data.process.image.review, target=data.process.target.review)
 
 ##
-loader = data.loader(train=train['dataset'], check=check['dataset'], batch=64)
+loader = data.loader(train=train['dataset'], check=check['dataset'], batch=32)
 if(loader.available("train") and loader.available("check")):
 
     print("Loader work successfully.")
@@ -46,8 +46,8 @@ machine  = network.machine(model=model, optimizer=optimizer, criterion=criterion
 ##
 iteration = 30
 history = {
-    'train' : {"cel":[]},
-    'check' : {"cel":[]}
+    'train' : {"cost":[]},
+    'check' : {"cost":[]}
 }
 for epoch in range(iteration):
 
@@ -65,10 +65,12 @@ for epoch in range(iteration):
         measurement = machine.measurement
         
         ##  History of epoch.
-        item = [network.metric.cel(measurement['train']['target'][i,:], measurement['train']['likelihood'][i,:,:], label=range(94)) for i in range(train['size'])]
-        history['train']['cel'] += [sum(item)/len(item)]
-        item = [network.metric.cel(measurement['check']['target'][i,:], measurement['check']['likelihood'][i,:,:], label=range(94)) for i in range(check['size'])]
-        history['check']['cel'] += [sum(item)/len(item)]
+        history['train']['cost'] += [measurement['train']['cost']]
+        history['check']['cost'] += [measurement['check']['cost']]
+        # item = [network.metric.cel(measurement['train']['target'][i,:], measurement['train']['likelihood'][i,:,:], label=range(94)) for i in range(train['size'])]
+        # history['train']['cost'] += [sum(item)/len(item)]
+        # item = [network.metric.cel(measurement['check']['target'][i,:], measurement['check']['likelihood'][i,:,:], label=range(94)) for i in range(check['size'])]
+        # history['check']['cost'] += [sum(item)/len(item)]
         
         ##  Save the report.
         report = network.report(train=history['train'], check=history['check'])
