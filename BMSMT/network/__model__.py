@@ -15,19 +15,23 @@ class model(torch.nn.Module):
         super(model, self).__init__()
         pass
         
-        ##  Word number.
-        word = 94
+        ##  Character number.
+        character = 94
 
         ##  Sequence length.
         sequence = 512
 
+        ##  Block of character.
+        block = {
+            'character':nn.Sequential(nn.Conv2d(512, character, 1), nn.ReLU())
+        }
+
         ##  Layer structure.
         layer = {
-            "convolutional":torchvision.models.resnet18(True),
-            "sequential":nn.ModuleDict({str(i):nn.Linear(1000, word) for i in range(sequence)}),
-            "rnn":nn.GRU(word, word, 2),
-            "attention":nn.TransformerEncoderLayer(d_model=word, nhead=1),
-            # "embedded":nn.Embedding(word, word),
+            "image convolutional":nn.Sequential(*list(torchvision.models.resnet18(True).children())[:-1]),
+            "character convolutional":nn.ModuleDict({str(i):block['character'] for i in range(sequence)}),
+            "recurrent":nn.GRU(character, character, 2),
+            "attention":nn.TransformerEncoderLayer(d_model=character, nhead=1),
             "probable":nn.Softmax(dim=2)
         }
         self.layer = nn.ModuleDict(layer)
@@ -40,10 +44,10 @@ class model(torch.nn.Module):
         midden = {"feature":None}
 
         ##  Feature forward.
-        midden['feature']    = self.layer['convolutional'](feature)
-        midden['feature']    = [torch.unsqueeze(self.layer['sequential'][i](midden['feature']), 1) for i in self.layer['sequential']]
+        midden['feature']    = self.layer['image convolutional'](feature)
+        midden['feature']    = [self.layer['character convolutional'][i](midden['feature']).flatten(1,-1).unsqueeze(1) for i in self.layer['character convolutional']]
         midden['feature']    = torch.cat(midden['feature'], 1)
-        midden['feature'], _ = self.layer['rnn'](midden['feature'])
+        midden['feature'], _ = self.layer['recurrent'](midden['feature'])
         midden['feature']    = self.layer['attention'](midden['feature'])
         midden['feature']    = self.layer['probable'](midden['feature'])
 
@@ -62,6 +66,8 @@ class model(torch.nn.Module):
         pass
 
 
+#x = torch.randn((12,3,224,224))
+#model()(x).shape
 
 # layer = {
 #     "convolutional":torchvision.models.resnet18(True),
