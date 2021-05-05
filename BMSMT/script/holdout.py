@@ -10,7 +10,7 @@ table = data.tabulation.filter(table=table, column='mode', value='train')
 debug = True
 if(debug):
 
-    number = round(len(table)/1000)
+    number = round(len(table)/4000)
     table  = table.sample(number)
     pass
 
@@ -26,7 +26,7 @@ train['dataset'] = data.dataset(train['table'], image=data.process.image.learn ,
 check['dataset'] = data.dataset(check['table'], image=data.process.image.review, target=data.process.target.review)
 
 ##
-loader = data.loader(train=train['dataset'], check=check['dataset'], batch=4)
+loader = data.loader(train=train['dataset'], check=check['dataset'], batch=16)
 if(loader.available("train") and loader.available("check")):
 
     print("Loader work successfully.")
@@ -44,7 +44,7 @@ folder   = "SOURCE/LOG"
 machine  = network.machine(model=model, optimizer=optimizer, criterion=criterion, device='cuda', folder=folder, checkpoint="0")
 
 ##
-iteration = 30
+iteration = 100
 history = {
     'train' : {"cost":[]},
     'check' : {"cost":[]}
