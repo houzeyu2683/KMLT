@@ -40,13 +40,15 @@ for mode in ['train', 'test']:
 ##  Combination.
 annotation = pandas.concat(group).reset_index(drop=True)
 
-##  Check the target, "InChI" column.
-##  I make sure the symbol '.' does not exist in this column.
-##  Define the '.' symbol is the padding of sequence.
-##  The max length of sequence is 403.
-##  Define the length of sequence is 512.
+##  Check the, "InChI" column.
+##  I make sure the symbol '.' does not exist in this column,
+##  then define the '.' symbol is the padding of sequence.
+##  I make sure the max length of sequence is 403,
+##  then define the length of sequence is 512.
+##  Create the "label" column.
+annotation['label'] = [i.split("InChI=1S/")[1] for i in annotation['InChI']]
 length = 512
-annotation['InChI'] = annotation['InChI'].str.pad(width=length, side='right', fillchar='.')
+annotation['label'] = annotation['label'].str.pad(width=length, side='right', fillchar='.')
 
 ##  Save the annotation.
 annotation.head()

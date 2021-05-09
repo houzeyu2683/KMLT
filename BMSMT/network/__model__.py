@@ -1,7 +1,7 @@
 
 
 ##
-##  Packages.
+##
 import torch, torchvision
 import torch.nn as nn
 
@@ -16,23 +16,18 @@ class model(torch.nn.Module):
         pass
         
         ##  Character number.
-        character = 94
+        self.character = 94
 
         ##  Sequence length.
-        sequence = 512
+        self.sequence = 512
 
-        ##  Block of character.
-        block = {
-            'character':nn.Sequential(nn.Conv2d(512, character, 1), nn.ReLU())
-        }
+        ##  Embedding dimension.
+        self.embedding = 32
 
         ##  Layer structure.
         layer = {
-            "image convolutional":nn.Sequential(*list(torchvision.models.resnet18(True).children())[:-1]),
-            "character convolutional":nn.ModuleDict({str(i):block['character'] for i in range(sequence)}),
-            "recurrent":nn.GRU(character, character, 2),
-            "attention":nn.TransformerEncoderLayer(d_model=character, nhead=1),
-            "probable":nn.Softmax(dim=2)
+            "convolutional":nn.Sequential(*list(torchvision.models.resnet18(True).children())[:-1], nn.Sigmoid()),
+            "embedded":nn.Embedding(self.character, self.embedding)
         }
         self.layer = nn.ModuleDict(layer)
         pass
@@ -40,23 +35,16 @@ class model(torch.nn.Module):
     def forward(self, batch):
 
         ##  Handle batch.
-        feature = batch
-        midden = {"feature":None}
+        feature, target = batch
 
-        ##  Feature forward.
-        midden['feature']    = self.layer['image convolutional'](feature)
-        midden['feature']    = [self.layer['character convolutional'][i](midden['feature']).flatten(1,-1).unsqueeze(1) for i in self.layer['character convolutional']]
-        midden['feature']    = torch.cat(midden['feature'], 1)
-        midden['feature'], _ = self.layer['recurrent'](midden['feature'])
-        midden['feature']    = self.layer['attention'](midden['feature'])
-        midden['feature']    = self.layer['probable'](midden['feature'])
-
-        # ##  Target forward.
-        # midden['target']    = self.layer['embedded'](target)
-        # midden['target']    = self.layer['probable'](midden['target'])
-
+        ##  Forward.
+        midden = {}
+        midden['feature'] = torch.as_tensor(self.layer['convolutional'](feature).flatten(1,-1) * self.character, dtype=torch.long)
+        midden['feature'] = self.layer['embedded'](midden['feature'])
+        midden['target']  = self.layer['embedded'](target)
+        
         ##  Handle output.
-        output = midden['feature']
+        output = midden['feature'], midden['target']
         return(output)
 
     def load(self, path):
@@ -66,57 +54,111 @@ class model(torch.nn.Module):
         pass
 
 
-#x = torch.randn((12,3,224,224))
-#model()(x).shape
-
-# layer = {
-#     "convolutional":torchvision.models.resnet18(True),
-#     "sequential":nn.ModuleDict({str(i):nn.Linear(1000, 27) for i in range(512)}),
-#     "rnn":nn.GRU(27, 27, 2),
-#     "attention":nn.TransformerEncoderLayer(d_model=27, nhead=3),
-#     "embedded":nn.Embedding(27, 27),
-#     "probable":nn.Softmax(dim=2)
-# }
-# layer = nn.ModuleDict(layer)
-
-
-
-# midden = {"feature":None, "target":None}
-
-# ##  圖片層====>文字機率
-# midden['feature']    = layer['convolutional'](feature)
-# midden['feature']    = [torch.unsqueeze(layer['sequential'][i](midden['feature']), 1) for i in layer['sequential']]
-# midden['feature']    = torch.cat(midden['feature'], 1)
-# midden['feature'], _ = layer['rnn'](midden['feature'])
-# midden['feature']    = layer['attention'](midden['feature'])
-# midden['feature']    = layer['probable'](midden['feature'])
-
-# ##  文字===>編碼
-# midden['target']    = layer['embedded'](target)
-# midden['target']    = layer['probable'](midden['target'])
-
-
-
-# import torch
+# ##
+# ##
+# import torch, torchvision
 # import torch.nn as nn
-# x = torch.randn((2,6,3))
-# y = torch.randint(0,3, (2, 6))
-# x.shape
-# y.shape
-# xx = torch.flatten(x, 0, 1)
-# yy = torch.flatten(y)
-# loss = nn.CrossEntropyLoss()
-# loss(xx, yy)
+# number = {
+#     "batch":12,
+#     "sequence":512,
+#     "embedding":4,
+#     "character":26
+# }
+# batch = torch.randn((number['batch'], 3, 224, 224)), torch.randint(1, number['character'], (number['batch'], number['sequence']))
+# image, target = batch
 
-# y.shape
-# xx.shape
 
-##
-# feature = torch.randn((16, 3, 224, 226))
-# target  = torch.randint(0, 27, (16, 512))
-# batch = feature, target
 
-# test = model()
-# x, y = test(batch)
-# x.shape
-# y.shape
+# layer_01 = nn.Sequential(*list(torchvision.models.resnet18(True).children())[:-1], nn.Sigmoid())
+# layer_02 = nn.Embedding(number['character'], number['embedding'])
+
+
+# code = torch.as_tensor(layer_01(image).flatten(1,-1) * number['character'], dtype=torch.long)
+# # #code = midden.clone()
+# # #code = code.detach()
+# # code = code.flatten(1,-1) * number['character']
+# # code = torch.as_tensor(code, dtype=torch.long)
+
+# code_image.shape
+# code_image = layer_02(code)
+# code_text  = layer_02(target)
+
+# loss = nn.MSELoss()
+# output = loss(code_image, code_text)
+
+
+# image.shape
+
+
+
+
+# torch.randint(1, number['character'], 15)
+
+# torch.randint(0,94, (12, 512)).
+# batch = torch.randn((12, 3, 224, 224)), 
+# feature = batch
+# x = feature
+# layer_image = nn.Sequential(*list(torchvision.models.resnet18(True).children())[:-1])
+
+# x = layer_image(x)
+# x = nn.Sigmoid()(x)
+# y = torch.round(x*94)
+# y = y.detach()
+# y = torch.tensor(y, dtype=torch.long)
+# y
+
+
+
+# # number = {
+# #     "character":94,
+# #     "sequence":512
+# # }
+# model = nn.Conv2d(1, 12 , 1, (1,1))
+# input1 = torch.randn(12, 1, 100, 128)
+# x = model(input1)
+# x = x[0,:]
+# input2 = torch.randn(12, 100, 128)
+# cos = nn.CosineSimilarity(dim=2, eps=1e-6)
+# output = cos(x, input2)
+# output.shape
+# output.bac
+
+# # block = nn.ModuleDict({
+# #     "01":nn.Sequential(
+# #         nn.Conv2d(3, 64, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False),
+# #         nn.BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+# #         nn.ReLU(inplace=True),
+# #         nn.Conv2d(64, 64, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False),
+# #         nn.BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+# #     ),
+# #     "02":nn.Sequential(
+# #         nn.Conv2d(64, 128, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False),
+# #         nn.BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+# #         nn.ReLU(inplace=True),
+# #         nn.Conv2d(128, 128, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False),
+# #         nn.BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+# #     ),
+# #     "03":nn.Sequential(
+# #         nn.Conv2d(128, 94, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False),
+# #         nn.BatchNorm2d(94, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
+# #         nn.ReLU(inplace=True),
+# #         nn.Conv2d(94, 94, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False),
+# #         nn.BatchNorm2d(94, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+# #     ),
+# #     "04":nn.AdaptiveAvgPool2d(output_size=(1,1))
+# # })
+
+# # layer = {
+# #     'image':nn.ModuleDict({str(i):nn.Sequential(block['01'],block['02'],block['03'],block['04']) for i in range(512)})
+# # }
+
+# # midden = [layer['image'][i](feature) for i in layer['image']]
+
+
+# # layer['image']["0"](feature)
+
+# # x = block['01'](x)
+# # x = block['02'](x)
+# # x = block['03'](x)
+# # x = block['04'](x)
+

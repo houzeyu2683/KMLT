@@ -54,7 +54,7 @@ class dataset(torch.utils.data.Dataset):
         ##  Process target, case by case.
         if(self.target):
 
-            midden = item['InChI']
+            midden = item['label']
             batch['target'] += [self.target(midden)]
             pass
         

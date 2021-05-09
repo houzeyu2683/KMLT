@@ -26,7 +26,7 @@ train['dataset'] = data.dataset(train['table'], image=data.process.image.learn ,
 check['dataset'] = data.dataset(check['table'], image=data.process.image.review, target=data.process.target.review)
 
 ##
-loader = data.loader(train=train['dataset'], check=check['dataset'], batch=16)
+loader = data.loader(train=train['dataset'], check=check['dataset'], batch=8)
 if(loader.available("train") and loader.available("check")):
 
     print("Loader work successfully.")
@@ -34,7 +34,7 @@ if(loader.available("train") and loader.available("check")):
 
 ##
 model     = network.model()
-criterion = network.criterion.cel(weight=data.process.dictionary['weight'])
+criterion = network.criterion.mae()
 
 ##
 optimizer = network.optimizer.adam(model)
@@ -44,7 +44,7 @@ folder   = "SOURCE/LOG"
 machine  = network.machine(model=model, optimizer=optimizer, criterion=criterion, device='cuda', folder=folder, checkpoint="0")
 
 ##
-iteration = 100
+iteration = 10
 history = {
     'train' : {"cost":[]},
     'check' : {"cost":[]}

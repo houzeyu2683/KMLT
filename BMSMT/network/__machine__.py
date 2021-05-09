@@ -36,12 +36,13 @@ class machine:
             feature, target = batch
             feature = feature.to(self.device)
             target  = target.to(self.device)
-            batch   = feature
+            batch   = feature, target
 
             ##  Update weight.
             self.optimizer.zero_grad()
-            output = self.model(batch).flatten(0,1)
-            loss   = self.criterion.to(self.device)(output, target.flatten())
+            output = self.model(batch)
+            loss   = self.criterion.to(self.device)(output[0], output[1])
+            output[1].shape
             loss.backward()
             self.optimizer.step()
             pass
@@ -69,11 +70,15 @@ class machine:
                     ##  Handle batch.
                     feature, target = batch
                     feature, target = feature.to(self.device), target.to(self.device)
-                    batch = feature
+                    batch = feature, target
 
                     ##  Evaluation item.
-                    likelihood = self.model(batch)
-                    cost = self.criterion(likelihood.detach().flatten(0,1), target.detach().flatten()).cpu()
+                    evaluation = {
+                        "likelihood":None,
+                        "target":None
+                    }
+                    evaluation["likelihood"], evaluation['target'] = self.model(batch)
+                    cost = self.criterion(evaluation['likelihood'], evaluation['target']).cpu().detach()
                     item['cost']  += [cost.numpy().item(0)]
                     pass
                 
