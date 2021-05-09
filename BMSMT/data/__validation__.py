@@ -23,7 +23,7 @@ class validation:
             train, check = train_test_split(table, test_size=ratio)
             pass
         
-        output = {"table":train}, {"table":check}
+        output = {"table":train, 'size':len(train)}, {"table":check, 'size':len(check)}
         return(output)
 
     # def fold(table, classification=None, size=4):

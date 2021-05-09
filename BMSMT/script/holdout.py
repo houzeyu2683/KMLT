@@ -7,7 +7,7 @@ table = data.tabulation.read("SOURCE/CSV/ANNOTATION.csv")
 table = data.tabulation.filter(table=table, column='mode', value='train')
 
 ##  Debug or not.
-debug = False
+debug = True
 if(debug):
 
     number = round(len(table)/4000)
@@ -18,8 +18,8 @@ if(debug):
 train, check = data.validation.split(table, classification=None, ratio=0.2)
 
 ##  Size.
-train['size'] = len(train['table'])
-check['size'] = len(check['table'])
+# train['size'] = len(train['table'])
+# check['size'] = len(check['table'])
 
 ##  Initialize the dataset.
 train['dataset'] = data.dataset(train['table'], image=data.process.image.learn , target=data.process.target.learn )
