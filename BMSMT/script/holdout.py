@@ -7,7 +7,7 @@ table = data.tabulation.read("SOURCE/CSV/ANNOTATION.csv")
 table = data.tabulation.filter(table=table, column='mode', value='train')
 
 ##  Debug or not.
-debug = True
+debug = False
 if(debug):
 
     number = round(len(table)/4000)
@@ -26,7 +26,7 @@ train['dataset'] = data.dataset(train['table'], image=data.process.image.learn ,
 check['dataset'] = data.dataset(check['table'], image=data.process.image.review, target=data.process.target.review)
 
 ##
-loader = data.loader(train=train['dataset'], check=check['dataset'], batch=8)
+loader = data.loader(train=train['dataset'], check=check['dataset'], batch=16)
 if(loader.available("train") and loader.available("check")):
 
     print("Loader work successfully.")
@@ -44,7 +44,7 @@ folder   = "SOURCE/LOG"
 machine  = network.machine(model=model, optimizer=optimizer, criterion=criterion, device='cuda', folder=folder, checkpoint="0")
 
 ##
-iteration = 10
+iteration = 30
 history = {
     'train' : {"cost":[]},
     'check' : {"cost":[]}
@@ -54,7 +54,7 @@ for epoch in range(iteration):
     ##  Learning process.
     machine.learn(loader.train)
 
-    if(epoch%5==0):
+    if(epoch%3==0):
 
         machine.measure(train=loader.train, check=loader.check)
         machine.save("checkpoint")
@@ -78,7 +78,7 @@ for epoch in range(iteration):
     pass
 
 
-# measurement['check']['likelihood'][0,:][511,:]
+#measurement['check'][''][0,:][511,:]
 # measurement['check']['target'][0]
 # # import numpy
 # numpy.argmax(measurement['check']['likelihood'][0,:], axis=1)
