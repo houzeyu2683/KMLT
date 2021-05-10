@@ -109,9 +109,9 @@ class model(torch.nn.Module):
 # y = torch.tensor(y, dtype=torch.long)
 # y
 
-m = model.layer['embedded']
-m.weight[0,:]
-m(torch.tensor(0))
+# m = model.layer['embedded']
+# m.weight[0,:]
+# m(torch.tensor(0))
 
 
 # # number = {
