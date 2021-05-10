@@ -84,7 +84,7 @@ class machine:
                     
                     cost = self.criterion(evaluation['embedded code'], evaluation['embedded target']).cpu().detach()
                     item['cost']  += [cost.numpy().item(0)]
-                    item['convolutional code'] += evaluation['convolutional code'].tolist()
+                    item['convolutional code'] += evaluation['convolutional code'].cpu().detach().tolist()
                     pass
                 
                 ##  Summarize item.

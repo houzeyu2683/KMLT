@@ -7,7 +7,7 @@ table = data.tabulation.read("SOURCE/CSV/ANNOTATION.csv")
 table = data.tabulation.filter(table=table, column='mode', value='train')
 
 ##  Debug or not.
-debug = True
+debug = False
 if(debug):
 
     number = round(len(table)/4000)
@@ -22,7 +22,7 @@ train['dataset'] = data.dataset(train['table'], image=data.process.image.learn ,
 check['dataset'] = data.dataset(check['table'], image=data.process.image.review, target=data.process.target.review)
 
 ##
-loader = data.loader(train=train['dataset'], check=check['dataset'], batch=16)
+loader = data.loader(train=train['dataset'], check=check['dataset'], batch=96)
 if(loader.available("train") and loader.available("check")):
 
     print("Loader work successfully.")
