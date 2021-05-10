@@ -12,17 +12,19 @@ class criterion:
     ##  Cross entropy loss.
     def cel(weight=None):
 
-        ##  Classification weight.
-        if(weight):
+        loss   = torch.nn.CrossEntropyLoss(ignore_index=65)
+        pass
+        # ##  Classification weight.
+        # if(weight):
             
-            weight = torch.tensor(weight, dtype=torch.float32)
-            loss   = torch.nn.CrossEntropyLoss(weight=weight)
-            pass
+        #     weight = torch.tensor(weight, dtype=torch.float32)
+        #     loss   = torch.nn.CrossEntropyLoss(weight=weight, ignore_index=65)
+        #     pass
 
-        else:
+        # else:
 
-            loss = torch.nn.CrossEntropyLoss()
-            pass
+        #     loss = torch.nn.CrossEntropyLoss()
+        #     pass
 
         return(loss)
 
