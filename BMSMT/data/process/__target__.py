@@ -15,11 +15,6 @@ with open(path, 'rb') as paper:
 
 
 ##
-##  Projection, high level customization, case by case.
-## projection = numpy.eye(len(dictionary), k=0)
-
-
-##
 ##  Class for process target, case by case.
 class target:
 
@@ -44,3 +39,35 @@ class target:
         output  = torch.tensor(index, dtype=torch.long)
         return(output)
 
+    def convert(batch):
+
+        output = []
+        for index in batch:
+
+            key  = list(dictionary['index'].keys())
+            text = [key[i] for i in index]
+            output += [text]
+            pass
+
+        return(output)
+
+# [[1,2,3], [5,1,2], [4,4,4]]
+
+
+# index = [9,5,27]
+
+
+
+# [ for i in index]
+# [for k,v in dictionary.items()]
+
+
+
+
+# list(dictionary['index'].values())[3]
+
+# list(dictionary.values())
+# list(dictionary.keys())
+
+
+# dictionary.keys()

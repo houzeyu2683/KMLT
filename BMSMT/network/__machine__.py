@@ -64,7 +64,8 @@ class machine:
             if(event[key]):
 
                 item = {
-                    'cost' :[]
+                    'cost' :[],
+                    "convolutional code" : [],
                 }
                 for batch in tqdm.tqdm(event[key], leave=False):
 
@@ -83,6 +84,7 @@ class machine:
                     
                     cost = self.criterion(evaluation['embedded code'], evaluation['embedded target']).cpu().detach()
                     item['cost']  += [cost.numpy().item(0)]
+                    item['convolutional code'] += evaluation['convolutional code'].tolist()
                     pass
                 
                 ##  Summarize item.

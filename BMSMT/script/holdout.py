@@ -17,10 +17,6 @@ if(debug):
 ##  Split table to train and check type.
 train, check = data.validation.split(table, classification=None, ratio=0.2)
 
-##  Size.
-# train['size'] = len(train['table'])
-# check['size'] = len(check['table'])
-
 ##  Initialize the dataset.
 train['dataset'] = data.dataset(train['table'], image=data.process.image.learn , target=data.process.target.learn )
 check['dataset'] = data.dataset(check['table'], image=data.process.image.review, target=data.process.target.review)
