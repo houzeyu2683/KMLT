@@ -13,17 +13,26 @@ class validation:
     def split(table, classification=None, ratio=0.2):
 
         numpy.random.seed(0)
-        if(classification):
+        if(ratio):
 
-            train, check = train_test_split(table, stratify=table[classification], test_size=ratio)
+            if(classification):
+
+                train, check = train_test_split(table, stratify=table[classification], test_size=ratio)
+                pass
+
+            else:
+
+                train, check = train_test_split(table, test_size=ratio)
+                pass
+            
+            output = {"table":train, 'size':len(train)}, {"table":check, 'size':len(check)}
             pass
 
         else:
 
-            train, check = train_test_split(table, test_size=ratio)
+            output = {"table":table, "size":len(table)}
             pass
         
-        output = {"table":train, 'size':len(train)}, {"table":check, 'size':len(check)}
         return(output)
 
     # def fold(table, classification=None, size=4):

@@ -38,13 +38,15 @@ class model(torch.nn.Module):
         feature, target = batch
 
         ##  Forward.
-        midden = {}
-        midden['feature'] = torch.as_tensor(self.layer['convolutional'](feature).flatten(1,-1) * self.character, dtype=torch.long)
-        midden['feature'] = self.layer['embedded'](midden['feature'])
-        midden['target']  = self.layer['embedded'](target)
+        record = {}
+        record['convolutional feature'] = self.layer['convolutional'](feature).flatten(1,-1) * self.character
+        record['convolutional code'] = torch.as_tensor(record['convolutional feature'], dtype=torch.long)
+        record['embedded code'] = self.layer['embedded'](record['convolutional code'])
+        record['embedded target']  = self.layer['embedded'](target)
+        
         
         ##  Handle output.
-        output = midden['feature'], midden['target']
+        output = record['embedded code'], record['embedded target'], record['convolutional code']
         return(output)
 
     def load(self, path):
@@ -107,6 +109,9 @@ class model(torch.nn.Module):
 # y = torch.tensor(y, dtype=torch.long)
 # y
 
+m = model.layer['embedded']
+m.weight[0,:]
+m(torch.tensor(0))
 
 
 # # number = {

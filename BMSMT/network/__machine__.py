@@ -9,7 +9,7 @@ import os, tqdm, torch, numpy, pickle
 ##  Class for machine learning process, case by case.
 class machine:
 
-    def __init__(self, model, optimizer=None, criterion=None, device='cuda', folder="LOG", checkpoint="0"):
+    def __init__(self, model, optimizer=None, criterion=None, device='cuda', folder=None, checkpoint="0"):
 
         self.model      = model
         self.optimizer  = optimizer
@@ -19,9 +19,11 @@ class machine:
         self.checkpoint = checkpoint
         pass
 
-        ##  Create the folder for checkpoint and measurenent.
-        os.makedirs(self.folder, exist_ok=True)
-        pass
+        ##  Create the folder for storage.
+        if(self.folder):
+        
+            os.makedirs(self.folder, exist_ok=True)
+            pass
 
     def learn(self, train):
 
@@ -42,7 +44,6 @@ class machine:
             self.optimizer.zero_grad()
             output = self.model(batch)
             loss   = self.criterion.to(self.device)(output[0], output[1])
-            output[1].shape
             loss.backward()
             self.optimizer.step()
             pass
@@ -74,11 +75,13 @@ class machine:
 
                     ##  Evaluation item.
                     evaluation = {
-                        "likelihood":None,
-                        "target":None
+                        "embedded code":None,
+                        "embedded target":None,
+                        "convolutional code":None
                     }
-                    evaluation["likelihood"], evaluation['target'] = self.model(batch)
-                    cost = self.criterion(evaluation['likelihood'], evaluation['target']).cpu().detach()
+                    evaluation["embedded code"], evaluation['embedded target'], evaluation['convolutional code'] = self.model(batch)
+                    
+                    cost = self.criterion(evaluation['embedded code'], evaluation['embedded target']).cpu().detach()
                     item['cost']  += [cost.numpy().item(0)]
                     pass
                 
@@ -128,7 +131,7 @@ class machine:
 
             except:
 
-                print("The checkpoint is not integer, ignore update checkpoint.\n")
+                print("The checkpoint is not integer, skip update checkpoint.\n")
                 pass
 
 
