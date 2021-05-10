@@ -18,16 +18,18 @@ class model(torch.nn.Module):
         ##  Character number.
         self.character = 94
 
-        ##  Sequence length.
+        ##  Sequence length, not use.
         self.sequence = 512
 
-        ##  Embedding dimension.
+        ##  Embedding dimension, not use.
         self.embedding = 32
 
         ##  Layer structure.
         layer = {
-            "convolutional":nn.Sequential(*list(torchvision.models.resnet18(True).children())[:-1], nn.Sigmoid()),
-            "embedded":nn.Embedding(self.character, self.embedding)
+            "convolutional":nn.Sequential(*list(torchvision.models.resnet18(True).children())[:-1], nn.Tanh()),
+            "recurrent one":nn.GRU(1, 32, 2),
+            "recurrent two":nn.GRU(32, self.character, 2),
+            "probable":nn.Softmax(dim=2)
         }
         self.layer = nn.ModuleDict(layer)
         pass
@@ -39,14 +41,17 @@ class model(torch.nn.Module):
 
         ##  Forward.
         record = {}
-        record['convolutional feature'] = self.layer['convolutional'](feature).flatten(1,-1) * self.character
-        record['convolutional code'] = torch.as_tensor(record['convolutional feature'], dtype=torch.long)
-        record['embedded code'] = self.layer['embedded'](record['convolutional code'])
-        record['embedded target']  = self.layer['embedded'](target)
-        
-        
+        record['convolutional'] = self.layer['convolutional'](feature).flatten(2)
+        record['recurrent one'], _ = self.layer['recurrent one'](record['convolutional'])
+        record['recurrent two'], _ = self.layer['recurrent two'](record['recurrent one'])
+        record['probable']   = self.layer['probable'](record['recurrent two'])
+
+        record['likelihood'] = record['probable'].flatten(0,1)        
+        record['target']     = target.flatten()
+        record['prediction'] = record['probable'].argmax(dim=2).tolist()
+
         ##  Handle output.
-        output = record['embedded code'], record['embedded target'], record['convolutional code']
+        output = record['likelihood'], record['target'], record['prediction']
         return(output)
 
     def load(self, path):
@@ -56,6 +61,10 @@ class model(torch.nn.Module):
         pass
 
 
+# import torch, torchvision
+# import torch.nn as nn
+# x = torch.randn((12, 33, 7))
+# x.argmax(dim=2).tolist()
 # ##
 # ##
 # import torch, torchvision
@@ -166,4 +175,31 @@ class model(torch.nn.Module):
 # # x = block['02'](x)
 # # x = block['03'](x)
 # # x = block['04'](x)
+
+import torch
+import torch.nn as nn
+import torchvision
+feature = torch.randn((12,3,224,224))
+
+
+layer = {
+    "convolutional":nn.Sequential(*list(torchvision.models.resnet18(True).children())[:-1], nn.Tanh()),
+    "recurrent one":nn.GRU(1, 32, 2),
+    "recurrent two":nn.GRU(32, 94, 2),
+    "probable":nn.Softmax(dim=2)
+}
+record = {}
+record['convolutional'] = layer['convolutional'](feature).flatten(2)
+record['recurrent one'], _ = layer['recurrent one'](record['convolutional'])
+record['recurrent two'], _ = layer['recurrent two'](record['recurrent one'])
+record['probable'] = layer['probable'](record['recurrent two']).flatten(0,1)
+
+
+record['probable'].flatten(0,1).shape
+
+record['convolutional'].shape
+record['recurrent one'].shape
+record['recurrent two'].shape
+record['probable'].shape
+
 

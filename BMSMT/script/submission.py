@@ -53,3 +53,20 @@ output = cos(input1, input2)
 output.shape
 
 
+import torch
+import torch.nn as nn
+rnn_a = nn.GRU(1, 20, 2)
+x1 = torch.randn(5, 3, 1)
+x2, h2 = rnn_a(x1)
+
+rnn_b = nn.GRU(20, 40, 2)
+x3, h3 = rnn_b(x2)
+
+
+
+
+
+hn.shape
+
+
+

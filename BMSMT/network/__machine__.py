@@ -65,7 +65,7 @@ class machine:
 
                 item = {
                     'cost' :[],
-                    "convolutional code" : [],
+                    'prediction':[]
                 }
                 for batch in tqdm.tqdm(event[key], leave=False):
 
@@ -76,15 +76,15 @@ class machine:
 
                     ##  Evaluation item.
                     evaluation = {
-                        "embedded code":None,
-                        "embedded target":None,
-                        "convolutional code":None
+                        "likelihood":None,
+                        "target":None,
+                        "prediction":None
                     }
-                    evaluation["embedded code"], evaluation['embedded target'], evaluation['convolutional code'] = self.model(batch)
+                    evaluation["likelihood"], evaluation['target'], evaluation['prediction'] = self.model(batch)
                     
-                    cost = self.criterion(evaluation['embedded code'], evaluation['embedded target']).cpu().detach()
+                    cost = self.criterion(evaluation['likelihood'], evaluation['target']).cpu().detach()
                     item['cost']  += [cost.numpy().item(0)]
-                    item['convolutional code'] += evaluation['convolutional code'].cpu().detach().tolist()
+                    item['prediction'] += evaluation['prediction']
                     pass
                 
                 ##  Summarize item.

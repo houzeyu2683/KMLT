@@ -35,21 +35,20 @@ class target:
         padding = 0
         value   = [dictionary['index'][i] for i in list(item)]
         index   = value + [padding] * (length-len(value))
-        # code    = numpy.concatenate([numpy.expand_dims(projection[:,i], axis=1) for i in index], axis=1)
         output  = torch.tensor(index, dtype=torch.long)
         return(output)
 
-    def convert(batch):
+    # def convert(batch):
 
-        output = []
-        for index in batch:
+    #     output = []
+    #     for index in batch:
 
-            key  = list(dictionary['index'].keys())
-            text = [key[i] for i in index]
-            output += [text]
-            pass
+    #         key  = list(dictionary['index'].keys())
+    #         text = [key[i] for i in index]
+    #         output += [text]
+    #         pass
 
-        return(output)
+    #     return(output)
 
 # [[1,2,3], [5,1,2], [4,4,4]]
 
