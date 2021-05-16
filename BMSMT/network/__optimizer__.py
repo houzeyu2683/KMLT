@@ -13,7 +13,7 @@ class optimizer:
 
         output = torch.optim.SGD(
             model.parameters(), 
-            lr=0.0001, momentum=0.9,
+            lr=0.001, momentum=0.9,
             dampening=0, weight_decay=0.1, 
             nesterov=False
         )

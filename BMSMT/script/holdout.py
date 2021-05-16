@@ -34,14 +34,14 @@ model     = network.model()
 criterion = network.criterion.cel()
 
 ##
-optimizer = network.optimizer.adam(model)
+optimizer = network.optimizer.sgd(model)
 
 ##
 folder   = "SOURCE/LOG"
 machine  = network.machine(model=model, optimizer=optimizer, criterion=criterion, device='cuda', folder=folder, checkpoint="0")
 
 ##
-iteration = 30
+iteration = 200
 history = {
     'train' : {"cost":[]},
     'check' : {"cost":[]}
@@ -70,7 +70,8 @@ for epoch in range(iteration):
         report.save(folder=folder)
         pass
 
-    ##  Update checkpoint.
+    ##  Update.
+    machine.update('schedule')
     machine.update('checkpoint')
     pass
 

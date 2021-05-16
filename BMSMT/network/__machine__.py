@@ -144,8 +144,8 @@ class machine:
 
         if(what=='schedule'):
 
-            self.scheduler.step()
-            print("The rater of learning process is {} in the next loop\n.".format(self.optimizer.param_groups[0]['lr']))
+            self.schedule.step()
+            print("The rate is {} in the next loop\n.".format(self.optimizer.param_groups[0]['lr']))
             pass
 
 
