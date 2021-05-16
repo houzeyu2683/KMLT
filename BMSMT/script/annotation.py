@@ -47,11 +47,10 @@ annotation = pandas.concat(group).reset_index(drop=True)
 ##  then define the length of sequence is 512.
 ##  Create the "label" column.
 annotation['label'] = [i.split("InChI=1S/")[1] for i in annotation['InChI']]
-length = 512
-annotation['label'] = annotation['label'].str.pad(width=length, side='right', fillchar='.')
+# length = 512
+# annotation['label'] = annotation['label'].str.pad(width=length, side='right', fillchar='.')
 
 ##  Save the annotation.
-annotation.head()
 path = "SOURCE/CSV/ANNOTATION.csv"
 os.makedirs(os.path.dirname(path), exist_ok=True)
 annotation.to_csv(path, index=False)

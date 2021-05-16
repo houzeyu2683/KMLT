@@ -10,9 +10,9 @@ import torch
 class criterion:
 
     ##  Cross entropy loss.
-    def cel(weight=None):
+    def cel():
 
-        loss   = torch.nn.CrossEntropyLoss(ignore_index=65)
+        loss   = torch.nn.CrossEntropyLoss()
         pass
         # ##  Classification weight.
         # if(weight):

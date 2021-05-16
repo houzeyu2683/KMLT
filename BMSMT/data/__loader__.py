@@ -1,8 +1,48 @@
 
 
+
 ##
 ##  Packages.
+import torch, pickle
 from torch.utils.data import DataLoader
+
+
+##
+##
+path = "SOURCE/PICKLE/VOCABULARY.pickle"
+with open(path, 'rb') as paper:
+
+    vocabulary = pickle.load(paper)
+    pass
+
+
+##
+##
+
+
+##
+##
+def sample(collection):
+    batch = {
+        "image":[],
+        "text":[]
+    }
+    for index, (image, text) in enumerate(collection):
+
+        image = torch.unsqueeze(image, dim=0)
+        batch['image'].append(image)
+        pass
+
+        text = [vocabulary['<bos>']] + [vocabulary[i] for i in text] + [vocabulary['<eos>']]
+        text = torch.tensor(text, dtype=torch.long)
+        batch['text'].append(text)
+        pass
+
+    batch['text']  = torch.nn.utils.rnn.pad_sequence(batch['text'], padding_value=vocabulary['<pad>'])
+    batch['image'] = torch.cat(batch['image'], dim=0)
+    batch['size'] = index+1
+    return(batch['image'], batch['text'], batch['size'])
+
 
 
 ##
@@ -13,17 +53,17 @@ class loader:
 
         if(train):
             
-            self.train = DataLoader(train, batch_size=batch, shuffle=True , drop_last=False)
+            self.train = DataLoader(train, batch_size=batch, shuffle=True , drop_last=False, collate_fn=sample)
             pass
 
         if(check):
 
-            self.check  = DataLoader(check , batch_size=batch, shuffle=False, drop_last=False)
+            self.check  = DataLoader(check , batch_size=batch, shuffle=False, drop_last=False, collate_fn=sample)
             pass
 
         if(test):
 
-            self.test  = DataLoader(test , batch_size=batch, shuffle=False, drop_last=False)
+            self.test  = DataLoader(test , batch_size=batch, shuffle=False, drop_last=False, collate_fn=sample)
             pass
     
     def available(self, which='train'):

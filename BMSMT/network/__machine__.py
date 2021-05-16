@@ -35,18 +35,20 @@ class machine:
         for batch in tqdm.tqdm(train, leave=False):
 
             ##  Handle batch.
-            feature, target = batch
-            feature = feature.to(self.device)
-            target  = target.to(self.device)
-            batch   = feature, target
+            image, text, _ = batch
+            text = text.to(self.device)
+            image  = image.to(self.device)
+            batch  = image, text[:-1,:]
 
             ##  Update weight.
             self.optimizer.zero_grad()
             output = self.model(batch)
-            loss   = self.criterion.to(self.device)(output[0], output[1])
+            loss   = self.criterion.to(self.device)(output.flatten(0,1), text[1:,:].flatten())
             loss.backward()
             self.optimizer.step()
             pass
+
+        pass
 
     def measure(self, train=None, check=None, test=None):
 
@@ -65,37 +67,37 @@ class machine:
 
                 item = {
                     'cost' :[],
-                    'prediction':[]
+                    'prediction':[],
+                    'target':[]
                 }
                 for batch in tqdm.tqdm(event[key], leave=False):
 
                     ##  Handle batch.
-                    feature, target = batch
-                    feature, target = feature.to(self.device), target.to(self.device)
-                    batch = feature, target
+                    image, text, _ = batch
+                    image, text = image.to(self.device), text.to(self.device)
+                    batch = image, text[:-1,:]
 
                     ##  Evaluation item.
                     evaluation = {
                         "likelihood":None,
-                        "target":None,
-                        "prediction":None
+                        "target":None
                     }
-                    evaluation["likelihood"], evaluation['target'], evaluation['prediction'] = self.model(batch)
-                    
-                    cost = self.criterion(evaluation['likelihood'], evaluation['target']).cpu().detach()
+                    evaluation["likelihood"] = self.model(batch)
+                    evaluation['target'] = text[1:,:]
+                    cost = self.criterion(evaluation['likelihood'].flatten(0,1), evaluation['target'].flatten()).cpu().detach()
                     item['cost']  += [cost.numpy().item(0)]
-                    item['prediction'] += evaluation['prediction']
                     pass
                 
                 ##  Summarize item.
                 item['cost'] = numpy.mean(item['cost'])
+                
                 pass
 
                 ##  Insert measurement.
                 measurement[key] = item
                 print("End of measure the {}.".format(key))
                 pass
-        
+
         self.measurement = measurement
         pass
 

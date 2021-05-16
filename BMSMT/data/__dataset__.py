@@ -9,13 +9,12 @@ import torch, os, PIL.Image
 ##  Class for dataset.
 class dataset(torch.utils.data.Dataset):
 
-    def __init__(self, table, target=None, variable=None, image=None, text=None):
+    def __init__(self, table, variable=None, image=None, text=None):
 
         self.table    = table
         pass
         
         ##  Define the process function for each type, case by case.
-        self.target   = target
         self.variable = variable
         self.image    = image
         self.text     = text
@@ -29,7 +28,7 @@ class dataset(torch.utils.data.Dataset):
     def __getitem__(self, index):
 
         ##  Handle batch, case by case.
-        batch = {"feature":[], "target":[]}
+        batch = {"variable":None, "image":None, "text": None}
         
         ##  Select item by index.
         item  = self.table.iloc[index, :]
@@ -42,23 +41,16 @@ class dataset(torch.utils.data.Dataset):
         ##  Process image, case by case.
         if(self.image):
 
-            midden = PIL.Image.open(item['image']).convert("RGB")
-            batch['feature'] += [self.image(midden)]
+            batch['image'] = self.image(PIL.Image.open(item['image']).convert("RGB"))
             pass
         
         ##  Process text, case by case.
         if(self.text):
 
-            pass
-        
-        ##  Process target, case by case.
-        if(self.target):
-
-            midden = item['label']
-            batch['target'] += [self.target(midden)]
+            batch['text'] = self.text(item['label'])
             pass
         
         ##  Handle outout, case by case.
-        output = batch['feature'][0], batch['target'][0]
+        output = batch['image'], batch['text']
         return(output)
 

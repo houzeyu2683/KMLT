@@ -189,3 +189,13 @@ x = character_layer['04'](x)
 
 x.flatten(1,-1)
 
+
+
+
+
+encoder_layer = nn.TransformerEncoderLayer(d_model=1, nhead=1)
+transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=6)
+src = torch.rand(10, 32, 1)
+out = transformer_encoder(src)
+
+out.shape

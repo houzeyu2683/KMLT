@@ -18,13 +18,14 @@ if(debug):
 train, check = data.validation.split(table, classification=None, ratio=0.2)
 
 ##  Initialize the dataset.
-train['dataset'] = data.dataset(train['table'], image=data.process.image.learn , target=data.process.target.learn )
-check['dataset'] = data.dataset(check['table'], image=data.process.image.review, target=data.process.target.review)
+train['dataset'] = data.dataset(train['table'], image=data.process.image.learn , text=data.process.text.tokenize)
+check['dataset'] = data.dataset(check['table'], image=data.process.image.review, text=data.process.text.tokenize)
 
 ##
 loader = data.loader(train=train['dataset'], check=check['dataset'], batch=8)
 if(loader.available("train") and loader.available("check")):
-
+    
+    batch = next(iter(loader.train))
     print("Loader work successfully.")
     pass
 
@@ -50,7 +51,7 @@ for epoch in range(iteration):
     ##  Learning process.
     machine.learn(loader.train)
 
-    if(epoch%3==0):
+    if(epoch%1==0):
 
         machine.measure(train=loader.train, check=loader.check)
         machine.save("checkpoint")
