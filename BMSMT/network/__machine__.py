@@ -145,7 +145,7 @@ class machine:
         if(what=='schedule'):
 
             self.schedule.step()
-            print("The rate is {} in the next loop\n.".format(self.optimizer.param_groups[0]['lr']))
+            print("The rate is {} in the next loop.".format(self.optimizer.param_groups[0]['lr']))
             pass
 
 
