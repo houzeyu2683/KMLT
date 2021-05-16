@@ -3,7 +3,7 @@
 ##
 ##  Packages.
 import os, tqdm, torch, numpy, pickle
-
+from torch.optim.lr_scheduler import StepLR
 
 ##
 ##  Class for machine learning process, case by case.
@@ -24,6 +24,10 @@ class machine:
         
             os.makedirs(self.folder, exist_ok=True)
             pass
+        
+        ##  Learning rate schedule.
+        self.schedule = StepLR(self.optimizer, step_size=50, gamma=0.1, last_epoch=-1, verbose=False)
+        pass
 
     def learn(self, train):
 
@@ -138,6 +142,11 @@ class machine:
                 print("The checkpoint is not integer, skip update checkpoint.\n")
                 pass
 
+        if(what=='schedule'):
+
+            self.scheduler.step()
+            print("The rater of learning process is {} in the next loop\n.".format(self.optimizer.param_groups[0]['lr']))
+            pass
 
 
 

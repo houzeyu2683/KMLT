@@ -27,3 +27,8 @@ class optimizer:
             eps=1e-09, weight_decay=1e-5, amsgrad=False
         )
         return(output)
+
+    def scheduler(optimizer, step, gamma=0.1):
+        
+        output = torch.optim.lr_scheduler.StepLR(optimizer, step_size=step, gamma=gamma, last_epoch=-1, verbose=False)
+        return(output)
