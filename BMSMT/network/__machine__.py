@@ -3,7 +3,7 @@
 ##
 ##  Packages.
 import os, tqdm, torch, numpy, pickle
-from torch.optim.lr_scheduler import StepLR
+# from torch.optim.lr_scheduler import StepLR
 
 ##
 ##  Class for machine learning process, case by case.
@@ -25,9 +25,11 @@ class machine:
             os.makedirs(self.folder, exist_ok=True)
             pass
         
-        ##  Learning rate schedule.
-        self.schedule = StepLR(self.optimizer, step_size=50, gamma=0.1, last_epoch=-1, verbose=False)
-        pass
+        ##  Optimizer schedule.
+        if(self.optimizer):
+
+            self.schedule = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=20, gamma=0.1, last_epoch=-1, verbose=False)
+            pass
 
     def learn(self, train):
 
@@ -54,7 +56,7 @@ class machine:
 
         pass
 
-    def measure(self, train=None, check=None, test=None):
+    def measure(self, train=None, check=None):
 
         ##  Measurement.
         measurement = {}
@@ -64,7 +66,7 @@ class machine:
         self.model = self.model.to(self.device)
 
         ##  Event.
-        event = {'train':train, "check":check, "test":test}
+        event = {'train':train, "check":check}
         for key in event:
 
             if(event[key]):
@@ -104,6 +106,27 @@ class machine:
 
         self.measurement = measurement
         pass
+
+    def predict(self, test, length):
+
+        # if(test.batch_size>1):
+
+        #     print("Batch size is not 1, stop the function.")
+        #     return
+        
+        self.model = self.model.to(self.device)
+        self.model.eval()
+        pass
+
+        prediction = []
+        for batch in tqdm.tqdm(test, leave=False):
+
+            image, _ = batch
+            image = image.to(self.device)
+            prediction += self.model.convert(image, length)
+            pass
+        
+        return(prediction)
 
     def save(self, what='checkpoint'):
 
@@ -148,6 +171,14 @@ class machine:
             print("The rate is {} in the next loop.".format(self.optimizer.param_groups[0]['lr']))
             pass
 
+    def load(self, what='weight', path=None):
+
+        if(path):
+            
+            self.model.load_state_dict(torch.load(path, map_location=torch.device('cpu')))
+            pass
+        
+        pass
 
 
 

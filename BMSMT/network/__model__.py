@@ -66,7 +66,7 @@ class model(torch.nn.Module):
         self.number = {
             "vocabulary" : 141,
             "embedding" : 256,
-            'sequence' : 512
+            'sequence' : 128
         }
         pass
 
@@ -123,7 +123,9 @@ class model(torch.nn.Module):
         return output
 
 
-    def convert(self, image):
+    def convert(self, image, length):
+
+        batch = image.shape[0]
 
         if(image.is_cuda):
 
@@ -140,6 +142,7 @@ class model(torch.nn.Module):
         midden['image to index 01 (01)'] = self.layer['image to index 01'](image)
         midden['image to index 01 (02)'] = midden['image to index 01 (01)'].flatten(1,-1)
         midden['image to index 01 (03)'] = torch.as_tensor(midden['image to index 01 (02)']*(self.number['vocabulary']), dtype=torch.long)
+
         ##  Image to index of text, given special tag.
         midden['image to index 02 (01)'] = self.layer['image to index 02'](midden['image to index 01 (02)'])
         midden['image to index 02 (02)'] = torch.as_tensor(midden['image to index 02 (01)'] * (self.number['sequence']-3), dtype=torch.long)
@@ -149,39 +152,48 @@ class model(torch.nn.Module):
             midden['image to index 01 (03)'][row, column] = vocabulary['<eos>']
             midden['image to index 01 (03)'][row, column+1:] = vocabulary['<pad>']
             pass    
+
         ##  Encoder, index of text to encode.
         midden['image to index 03'] = midden['image to index 01 (03)'].transpose(0,1)
-
         midden['encoder memory'] = self.layer['text encoder'](
             self.layer['text to embedding'](midden['image to index 03']),
             mask.encode(midden['image to index 03']), 
             mask.pad(midden['image to index 03'])
         )
 
-        ##
-        sequence = torch.ones(1, 1).fill_(vocabulary['<bos>']).type(torch.long).to(device)
-        for i in range(self.number['sequence']):
+        output = []
+        for item in range(batch):
+            
+            memory = midden['encoder memory'][:,item:item+1,:]
 
-            midden['decoder output'] = self.layer['text decoder'](
-                self.layer['text to embedding'](sequence), 
-                midden['encoder memory'], 
-                mask.decode(sequence), 
-                None, 
-                None
-            )
-            probability = self.layer['text to vacabulary'](midden['decoder output'].transpose(0, 1)[:, -1])
-            _, prediction = torch.max(probability, dim = 1)
-            index = prediction.item()
-            sequence = torch.cat([sequence, torch.ones(1, 1).type_as(midden['image to index 03']).fill_(index)], dim=0)
+        # print("midden['encoder memory']")
+        # print(midden['encoder memory'].shape)
+            ##  Generate sequence.
+            sequence = torch.ones(1, 1).fill_(vocabulary['<bos>']).type(torch.long).to(device)
+            for i in range(length):
+
+                midden['decoder output'] = self.layer['text decoder'](
+                    self.layer['text to embedding'](sequence), 
+                    memory, 
+                    mask.decode(sequence), 
+                    None, 
+                    None
+                )
+                probability = self.layer['text to vacabulary'](midden['decoder output'].transpose(0, 1)[:, -1])
+                _, prediction = torch.max(probability, dim = 1)
+                index = prediction.item()
+                sequence = torch.cat([sequence, torch.ones(1, 1).type_as(midden['image to index 03']).fill_(index)], dim=0)
+                pass
+
+                if index == vocabulary['<eos>']:
+                    
+                    break
+            
+            character = "InChI=1S/" + "".join([vocabulary.itos[tok] for tok in sequence]).replace("<bos>", "").replace("<eos>", "")
+            output += [character]
             pass
 
-            if index == vocabulary['<eos>']:
-                
-                break
-        
-        sequence = "InChI=1S/" + "".join([vocabulary.itos[tok] for tok in sequence]).replace("<bos>", "").replace("<eos>", "")
-        # sequence = [vocabulary.itos[tok] for tok in sequence]
-        return sequence
+        return output
 
 
 

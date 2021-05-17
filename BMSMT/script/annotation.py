@@ -41,10 +41,22 @@ for mode in ['train', 'test']:
 annotation = pandas.concat(group).reset_index(drop=True)
 
 ##  Label.
-annotation['label'] = [i.split("InChI=1S/")[1] for i in annotation['InChI']]
+label = []
+for item in annotation['InChI']:
+
+    item = item.split("InChI=1S/")[1]
+    if(item==""):
+
+        item = item + "Unknown"
+        pass
+
+    label += [item]
+    pass
+
+annotation['label'] = label
 
 ##  Save the annotation.
 path = "SOURCE/CSV/ANNOTATION.csv"
 os.makedirs(os.path.dirname(path), exist_ok=True)
-annotation.to_csv(path, index=False, dtype=str)
+annotation.to_csv(path, index=False)
 

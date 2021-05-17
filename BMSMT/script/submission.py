@@ -1,7 +1,7 @@
 
 ##  Packages.
+from pickle import FALSE
 import data, network
-import tqdm, torch
 
 ##  Load table and skip real test data.
 table = data.tabulation.read("SOURCE/CSV/ANNOTATION.csv")
@@ -12,33 +12,54 @@ debug = True
 if(debug):
 
     number = round(len(table)/4000)
-    table  = table.sample(number)
+    table  = table.sample(number).reset_index(drop=True)
     pass
 
 ##  Split table to train and check type.
 test = data.validation.split(table, classification=None, ratio=None)
-test['table']['label'] = ""
+
 ##  Initialize the dataset.
 test['dataset'] = data.dataset(test['table'], image=data.process.image.review , text=data.process.text.tokenize)
 
 ##
-loader = data.loader(test=test['dataset'], batch=1)
+loader = data.loader(test=test['dataset'], batch=8)
 
 ##
-model = network.model().to("cuda")
-model.eval()
-model.load_state_dict(torch.load("SOURCE/LOG/2.checkpoint"))
+model = network.model()
 
-prediction = []
-for batch in tqdm.tqdm(loader.test):
+##
+machine = network.machine(model=model, device='cuda')
+machine.load(what='weight', path="SOURCE/LOG/2.checkpoint")
 
-    image, _, _ = batch
-    image = image.to('cuda')
-    prediction += [model.convert(image)]
-    pass
-
+##
+prediction = machine.predict(loader.test, length=128)
 test['table']['InChI'] = prediction
-test['table'][['image_id', 'InChI']].to_csv("SOURCE/sub.csv", index=False)
+
+
+submission = test['table'][['image_id', 'InChI']]
+submission.to_csv("SOURCE/SUBMISSION.csv", index=FALSE)
+
+
+
+
+
+
+# import torch
+# x = torch.randn((256, 4, 512))
+# x[:, 4:5, :].shape
+# model.eval()
+# model.load_state_dict(torch.load("SOURCE/LOG/2.checkpoint"))
+
+# prediction = []
+# for batch in tqdm.tqdm(loader.test):
+
+#     image, _ = batch
+#     image = image.to('cuda')
+#     prediction += [model.convert(image)]
+#     pass
+
+# test['table']['InChI'] = prediction
+# test['table'][['image_id', 'InChI']].to_csv("SOURCE/sub.csv", index=False)
 
 
 # batch = next(iter(loader.train))

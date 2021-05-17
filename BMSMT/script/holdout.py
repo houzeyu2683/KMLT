@@ -11,7 +11,7 @@ debug = True
 if(debug):
 
     number = round(len(table)/4000)
-    table  = table.sample(number)
+    table  = table.sample(number).reset_index(drop=True)
     pass
 
 ##  Split table to train and check type.

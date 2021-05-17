@@ -47,7 +47,7 @@ class text:
                     continue
 
                 pass
-
+            
             token = token + [letter]
             pass
         
@@ -58,7 +58,8 @@ class text:
         return(output)
 
 
-# item = "Ch/C6H5Cl4Sr32"
+
+# item = "unknwon"
 # index = text.tokenize(item)
 
 
