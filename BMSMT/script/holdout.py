@@ -40,6 +40,15 @@ optimizer = network.optimizer.sgd(model)
 folder   = "SOURCE/LOG"
 machine  = network.machine(model=model, optimizer=optimizer, criterion=criterion, device='cuda', folder=folder, checkpoint="0")
 
+# batch = next(iter(loader.train))
+# batch = batch[0][0:1, :,:].to('cuda'), batch[1]
+# image = batch[0][0:1, :,:].to('cuda')
+# x = machine.model.to('cuda').convert(image)
+# x = model
+# len(x)
+
+# x.split(',')
+# batch[0][0:1, :,:].shape
 ##
 iteration = 200
 history = {

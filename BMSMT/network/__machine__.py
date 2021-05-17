@@ -39,7 +39,7 @@ class machine:
         for batch in tqdm.tqdm(train, leave=False):
 
             ##  Handle batch.
-            image, text, _ = batch
+            image, text = batch
             text = text.to(self.device)
             image  = image.to(self.device)
             batch  = image, text[:-1,:]
@@ -77,7 +77,7 @@ class machine:
                 for batch in tqdm.tqdm(event[key], leave=False):
 
                     ##  Handle batch.
-                    image, text, _ = batch
+                    image, text = batch
                     image, text = image.to(self.device), text.to(self.device)
                     batch = image, text[:-1,:]
 

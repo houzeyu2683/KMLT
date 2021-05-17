@@ -28,7 +28,7 @@ class optimizer:
         )
         return(output)
 
-    def scheduler(optimizer, step, gamma=0.1):
+    # def scheduler(optimizer, step, gamma=0.1):
         
-        output = torch.optim.lr_scheduler.StepLR(optimizer, step_size=step, gamma=gamma, last_epoch=-1, verbose=False)
-        return(output)
+    #     output = torch.optim.lr_scheduler.StepLR(optimizer, step_size=step, gamma=gamma, last_epoch=-1, verbose=False)
+    #     return(output)

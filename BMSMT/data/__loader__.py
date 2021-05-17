@@ -18,11 +18,8 @@ with open(path, 'rb') as paper:
 
 ##
 ##
-
-
-##
-##
 def sample(collection):
+
     batch = {
         "image":[],
         "text":[]
@@ -40,9 +37,7 @@ def sample(collection):
 
     batch['text']  = torch.nn.utils.rnn.pad_sequence(batch['text'], padding_value=vocabulary['<pad>'])
     batch['image'] = torch.cat(batch['image'], dim=0)
-    batch['size'] = index+1
-    return(batch['image'], batch['text'], batch['size'])
-
+    return(batch['image'], batch['text'])
 
 
 ##

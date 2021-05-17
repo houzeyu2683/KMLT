@@ -17,14 +17,34 @@ with open(path, 'rb') as paper:
 
 class mask:
 
-    def encode(text, device='cuda'):
+    def encode(text):
+
+        if(text.is_cuda):
+
+            device = "cuda"
+            pass
+
+        else:
+
+            device = 'cpu'
+            pass
 
         length = text.shape[0]
         mask = torch.zeros((length, length), device=device).type(torch.bool)
         return mask
     
-    def decode(text, device='cuda'):
-        
+    def decode(text):
+
+        if(text.is_cuda):
+
+            device = "cuda"
+            pass
+
+        else:
+
+            device = 'cpu'
+            pass
+
         length = text.shape[0]
         mask = (torch.triu(torch.ones((length, length), device=device)) == 1).transpose(0, 1)
         mask = mask.float().masked_fill(mask == 0, float('-inf')).masked_fill(mask == 1, float(0.0))
@@ -59,6 +79,7 @@ class model(torch.nn.Module):
         layer['text to vacabulary'] = nn.Linear(self.number['embedding'], self.number['vocabulary'])
         self.layer = nn.ModuleDict(layer)
         pass
+    
 
     def forward(self, batch):
         
@@ -102,33 +123,65 @@ class model(torch.nn.Module):
         return output
 
 
-#     def encoder(self, batch):
+    def convert(self, image):
 
-#         image, text = batch
-#         midden = {}
-#         ##  Image to index of text, prototype.
-#         midden['image to index 01 (01)'] = self.layer['image to index 01'](image)
-#         midden['image to index 01 (02)'] = midden['image to index 01 (01)'].flatten(1,-1)
-#         midden['image to index 01 (03)'] = torch.as_tensor(midden['image to index 01 (02)']*(self.number['vocabulary']), dtype=torch.long)
+        if(image.is_cuda):
+
+            device = 'cuda'
+            pass
+
+        else:
+     
+            device = 'cpu'
+            pass
+
+        midden = {}
+        ##  Image to index of text, prototype.
+        midden['image to index 01 (01)'] = self.layer['image to index 01'](image)
+        midden['image to index 01 (02)'] = midden['image to index 01 (01)'].flatten(1,-1)
+        midden['image to index 01 (03)'] = torch.as_tensor(midden['image to index 01 (02)']*(self.number['vocabulary']), dtype=torch.long)
+        ##  Image to index of text, given special tag.
+        midden['image to index 02 (01)'] = self.layer['image to index 02'](midden['image to index 01 (02)'])
+        midden['image to index 02 (02)'] = torch.as_tensor(midden['image to index 02 (01)'] * (self.number['sequence']-3), dtype=torch.long)
+        for row, column in enumerate(midden['image to index 02 (02)']):
+
+            midden['image to index 01 (03)'][row, 0] = vocabulary['<bos>']
+            midden['image to index 01 (03)'][row, column] = vocabulary['<eos>']
+            midden['image to index 01 (03)'][row, column+1:] = vocabulary['<pad>']
+            pass    
+        ##  Encoder, index of text to encode.
+        midden['image to index 03'] = midden['image to index 01 (03)'].transpose(0,1)
+
+        midden['encoder memory'] = self.layer['text encoder'](
+            self.layer['text to embedding'](midden['image to index 03']),
+            mask.encode(midden['image to index 03']), 
+            mask.pad(midden['image to index 03'])
+        )
+
+        ##
+        sequence = torch.ones(1, 1).fill_(vocabulary['<bos>']).type(torch.long).to(device)
+        for i in range(self.number['sequence']):
+
+            midden['decoder output'] = self.layer['text decoder'](
+                self.layer['text to embedding'](sequence), 
+                midden['encoder memory'], 
+                mask.decode(sequence), 
+                None, 
+                None
+            )
+            probability = self.layer['text to vacabulary'](midden['decoder output'].transpose(0, 1)[:, -1])
+            _, prediction = torch.max(probability, dim = 1)
+            index = prediction.item()
+            sequence = torch.cat([sequence, torch.ones(1, 1).type_as(midden['image to index 03']).fill_(index)], dim=0)
+            pass
+
+            if index == vocabulary['<eos>']:
+                
+                break
         
-#         ##  Image to index of text, given special tag.
-#         midden['image to index 02 (01)'] = self.layer['image to index 02'](midden['image to index 01 (02)'])
-#         midden['image to index 02 (02)'] = torch.as_tensor(midden['image to index 02 (01)'] * (self.number['sequence']-3), dtype=torch.long)
-#         for row, column in enumerate(midden['image to index 02 (02)']):
-
-#             midden['image to index 01 (03)'][row, 0] = vocabulary['<bos>']
-#             midden['image to index 01 (03)'][row, column] = vocabulary['<eos>']
-#             midden['image to index 01 (03)'][row, column+1:] = vocabulary['<pad>']
-#             pass    
-        
-#         ##  Encoder, index of text to encode.
-#         midden['image to index 03'] = midden['image to index 01 (03)'].transpose(0,1)
-#         midden['encoder memory'] = self.layer['text encoder'](
-#             self.layer['text to embedding'](midden['image to index 03']),
-#             mask.encode(midden['image to index 03']), 
-#             mask.pad(midden['image to index 03'])
-#         )
-
+        sequence = "InChI=1S/" + "".join([vocabulary.itos[tok] for tok in sequence]).replace("<bos>", "").replace("<eos>", "")
+        # sequence = [vocabulary.itos[tok] for tok in sequence]
+        return sequence
 
 
 

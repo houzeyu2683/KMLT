@@ -11,7 +11,7 @@ class tabulation:
     
     def read(path):
 
-        output = pandas.read_csv(path)
+        output = pandas.read_csv(path, dtype = str)
         return(output)
 
     ##  Filter by column.
