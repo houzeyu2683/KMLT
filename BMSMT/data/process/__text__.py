@@ -5,20 +5,6 @@
 import string, torch, pickle
 
 
-# ##
-# ##
-# path = "SOURCE/PICKLE/VOCABULARY.pickle"
-# with open(path, 'rb') as paper:
-
-#     vocabulary = pickle.load(paper)
-#     pass
-
-
-# ##
-# ##
-# length = 512
-
-
 ##
 ##
 class text:

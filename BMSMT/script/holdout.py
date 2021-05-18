@@ -11,7 +11,7 @@ debug = True
 if(debug):
 
     number = round(len(table)/4000)
-    table  = table.sample(number).reset_index(drop=True)
+    table  = table.sample(number)
     pass
 
 ##  Split table to train and check type.
@@ -34,7 +34,7 @@ model     = network.model()
 criterion = network.criterion.cel()
 
 ##
-optimizer = network.optimizer.sgd(model)
+optimizer = network.optimizer.adam(model)
 
 ##
 folder   = "SOURCE/LOG"

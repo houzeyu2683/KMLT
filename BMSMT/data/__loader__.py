@@ -24,7 +24,7 @@ def sample(collection):
         "image":[],
         "text":[]
     }
-    for index, (image, text) in enumerate(collection):
+    for _, (image, text) in enumerate(collection):
 
         image = torch.unsqueeze(image, dim=0)
         batch['image'].append(image)
