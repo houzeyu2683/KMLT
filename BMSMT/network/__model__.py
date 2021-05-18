@@ -66,7 +66,7 @@ class model(torch.nn.Module):
         self.number = {
             "vocabulary" : 141,
             "embedding" : 256,
-            'sequence' : 128
+            'sequence' : 512
         }
         pass
 
@@ -161,6 +161,41 @@ class model(torch.nn.Module):
             mask.pad(midden['image to index 03'])
         )
 
+        ##
+        memory = midden['encoder memory']
+        # print(memory.shape)
+        sequence = torch.ones(1, batch).fill_(vocabulary['<bos>']).type(torch.long).to(device)
+        # print("sequence")
+        # print(sequence.shape)
+        for _ in range(length):
+            midden['decoder output'] = self.layer['text decoder'](
+                self.layer['text to embedding'](sequence), 
+                memory, 
+                mask.decode(sequence), 
+                None, 
+                None
+            )
+            # print("midden['decoder output']-----")
+            # print(midden['decoder output'].shape)
+            probability = self.layer['text to vacabulary'](midden['decoder output'].transpose(0, 1)[:, -1])
+            # print("probability---")
+            # print(probability.shape)
+            _, prediction = torch.max(probability, dim = 1)
+            # print('prediction')
+            # print(prediction.shape)
+            # print(prediction)
+            sequence = torch.cat([sequence, prediction.unsqueeze(dim=0)], dim=0)
+            # print("sequence")
+            # print(sequence.shape)
+            output = []
+            for i in range(batch):
+
+                character = "InChI=1S/" + "".join([vocabulary.itos[token] for token in sequence[:,i]]).replace("<bos>", "").replace("<eos>", "").replace('<pad>', "")
+                output += [character]
+                pass
+
+        return output
+
         output = []
         for item in range(batch):
             
@@ -179,6 +214,8 @@ class model(torch.nn.Module):
                     None, 
                     None
                 )
+                print("midden['decoder output'] ")
+                print(midden['decoder output'].shape)
                 probability = self.layer['text to vacabulary'](midden['decoder output'].transpose(0, 1)[:, -1])
                 _, prediction = torch.max(probability, dim = 1)
                 index = prediction.item()
