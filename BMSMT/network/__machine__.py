@@ -28,7 +28,7 @@ class machine:
         ##  Optimizer schedule.
         if(self.optimizer):
 
-            self.schedule = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=20, gamma=0.1, last_epoch=-1, verbose=False)
+            self.schedule = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=5, gamma=0.5, last_epoch=-1, verbose=False)
             pass
 
     def learn(self, train):

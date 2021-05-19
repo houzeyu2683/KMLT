@@ -29,9 +29,6 @@ machine = network.machine(model=model, device='cuda')
 machine.load(what='weight', path="SOURCE/LOG/2.checkpoint")
 
 ##
-# prediction = machine.predict(loader.test, length=128)
-
-##
 def submit(index, machine, group):
 
     prediction = machine.predict(group['loader'][index], length=128)
@@ -41,17 +38,10 @@ def submit(index, machine, group):
     print("Finish the {} thread.\n".format(index))
     return
 
-
-
-# ##
-# test['table']['InChI'] = prediction
-
-# ##
-# submission = test['table'][['image_id', 'InChI']]
-# submission.to_csv("SOURCE/SUBMISSION.csv", index=False)
-
-
+##
 import threading, time
+
+##
 thread = []
 for index in range(group['size']):
     
