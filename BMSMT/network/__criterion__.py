@@ -6,25 +6,23 @@ import torch
 
 
 ##
-##  Class for criterion.
+##
 class criterion:
 
     ##  Cross entropy loss.
-    def cel():
+    def cel(weight=None):
 
-        loss   = torch.nn.CrossEntropyLoss()
-        pass
-        # ##  Classification weight.
-        # if(weight):
+        ##  Classification weight.
+        if(weight):
             
-        #     weight = torch.tensor(weight, dtype=torch.float32)
-        #     loss   = torch.nn.CrossEntropyLoss(weight=weight, ignore_index=65)
-        #     pass
+            weight = torch.tensor(weight, dtype=torch.float32)
+            loss   = torch.nn.CrossEntropyLoss(weight=weight, ignore_index=65)
+            pass
 
-        # else:
+        else:
 
-        #     loss = torch.nn.CrossEntropyLoss()
-        #     pass
+            loss = torch.nn.CrossEntropyLoss()
+            pass
 
         return(loss)
 

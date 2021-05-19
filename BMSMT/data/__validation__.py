@@ -35,27 +35,27 @@ class validation:
         
         return(output)
 
-    # def fold(table, classification=None, size=4):
+    def fold(table, classification=None, size=4):
 
-    #     numpy.random.seed(0)
-    #     if(classification):
+        numpy.random.seed(0)
+        if(classification):
 
-    #         validator  = StratifiedKFold(n_splits=size).split(table, table[classification])
-    #         pass
+            validator  = StratifiedKFold(n_splits=size).split(table, table[classification])
+            pass
 
-    #     else:
+        else:
 
-    #         validator  = KFold(n_splits=size).split(table)
-    #         pass
+            validator  = KFold(n_splits=size).split(table)
+            pass
 
-    #     output     = {}
-    #     for number, index in enumerate(validator):
+        output     = {}
+        for number, index in enumerate(validator):
 
-    #         group = {
-    #             'train' : table.iloc[index[0]],
-    #             'check' : table.iloc[index[1]]
-    #         }        
-    #         output[str(number+1)] = group
-    #         pass
+            group = {
+                'train' : table.iloc[index[0]],
+                'check' : table.iloc[index[1]]
+            }        
+            output[str(number+1)] = group
+            pass
 
-    #     return(output)
+        return(output)

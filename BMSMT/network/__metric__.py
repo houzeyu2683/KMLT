@@ -2,9 +2,6 @@
 
 ##
 ##  Packages.
-import numpy
-import pandas
-import sklearn
 from sklearn import metrics
 
 

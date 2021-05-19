@@ -11,7 +11,7 @@ def tokenize(item):
     loop = enumerate(list(item))
 
     output = []
-    for index, letter in loop:
+    for _, letter in loop:
             
         if(letter in string.ascii_lowercase):
 
