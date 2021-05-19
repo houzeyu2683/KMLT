@@ -23,7 +23,7 @@ class optimizer:
 
         output = torch.optim.Adam(
             model.parameters(), 
-            lr=0.0001, betas=(0.9, 0.999), 
+            lr=0.001, betas=(0.9, 0.999), 
             eps=1e-09, weight_decay=1e-5, amsgrad=False
         )
         return(output)

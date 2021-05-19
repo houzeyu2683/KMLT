@@ -47,7 +47,7 @@ for item in annotation['InChI']:
     item = item.split("InChI=1S/")[1]
     if(item==""):
 
-        item = item + "Unknown"
+        item = item + " "
         pass
 
     label += [item]
@@ -59,4 +59,5 @@ annotation['label'] = label
 path = "SOURCE/CSV/ANNOTATION.csv"
 os.makedirs(os.path.dirname(path), exist_ok=True)
 annotation.to_csv(path, index=False)
+
 

@@ -7,7 +7,7 @@ table = data.tabulation.read("SOURCE/CSV/ANNOTATION.csv")
 table = data.tabulation.filter(table=table, column='mode', value='train')
 
 ##  Debug or not.
-debug = True
+debug = False
 if(debug):
 
     number = round(len(table)/4000)
@@ -25,7 +25,6 @@ check['dataset'] = data.dataset(check['table'], image=data.process.image.review,
 loader = data.loader(train=train['dataset'], check=check['dataset'], batch=8)
 if(loader.available("train") and loader.available("check")):
     
-    batch = next(iter(loader.train))
     print("Loader work successfully.")
     pass
 
@@ -38,19 +37,12 @@ optimizer = network.optimizer.adam(model)
 
 ##
 folder   = "SOURCE/LOG"
+
+##
 machine  = network.machine(model=model, optimizer=optimizer, criterion=criterion, device='cuda', folder=folder, checkpoint="0")
 
-# batch = next(iter(loader.train))
-# batch = batch[0][0:1, :,:].to('cuda'), batch[1]
-# image = batch[0][0:1, :,:].to('cuda')
-# x = machine.model.to('cuda').convert(image)
-# x = model
-# len(x)
-
-# x.split(',')
-# batch[0][0:1, :,:].shape
 ##
-iteration = 200
+iteration = 20
 history = {
     'train' : {"cost":[]},
     'check' : {"cost":[]}

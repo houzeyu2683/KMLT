@@ -3,7 +3,7 @@
 ##
 ##  Packages.
 import os, tqdm, torch, numpy, pickle
-# from torch.optim.lr_scheduler import StepLR
+
 
 ##
 ##  Class for machine learning process, case by case.
@@ -53,7 +53,8 @@ class machine:
             loss.backward()
             self.optimizer.step()
             pass
-
+        
+        print("End of measure the {}.".format("train"))
         pass
 
     def measure(self, train=None, check=None):
@@ -71,11 +72,8 @@ class machine:
 
             if(event[key]):
 
-                item = {
-                    'cost' :[],
-                    'prediction':[],
-                    'target':[]
-                }
+                evaluation = {}
+                evaluation.update('cost',[])
                 for batch in tqdm.tqdm(event[key], leave=False):
 
                     ##  Handle batch.
@@ -83,24 +81,24 @@ class machine:
                     image, text = image.to(self.device), text.to(self.device)
                     batch = image, text[:-1,:]
 
-                    ##  Evaluation item.
-                    evaluation = {
+                    ##  Evaluate item.
+                    item = {
                         "likelihood":None,
                         "target":None
                     }
-                    evaluation["likelihood"] = self.model(batch)
-                    evaluation['target'] = text[1:,:]
-                    cost = self.criterion(evaluation['likelihood'].flatten(0,1), evaluation['target'].flatten()).cpu().detach()
-                    item['cost']  += [cost.numpy().item(0)]
+                    item["likelihood"] = self.model(batch).flatten(0,1)
+                    item['target']     = text[1:,:].flatten()
+                    cost = self.criterion(item['likelihood'], item['target']).cpu().detach().numpy().item()
+                    evaluation['cost']  += [cost]
                     pass
                 
-                ##  Summarize item.
-                item['cost'] = numpy.mean(item['cost'])
+                ##  Summarize evaluation.
+                evaluation['cost'] = numpy.mean(evaluation['cost'])
                 
                 pass
 
-                ##  Insert measurement.
-                measurement[key] = item
+                ##  Insert evaluation to measurement.
+                measurement[key] = evaluation
                 print("End of measure the {}.".format(key))
                 pass
 
@@ -109,11 +107,6 @@ class machine:
 
     def predict(self, test, length):
 
-        # if(test.batch_size>1):
-
-        #     print("Batch size is not 1, stop the function.")
-        #     return
-        
         self.model = self.model.to(self.device)
         self.model.eval()
         pass
@@ -168,7 +161,8 @@ class machine:
         if(what=='schedule'):
 
             self.schedule.step()
-            print("The rate is {} in the next loop.".format(self.optimizer.param_groups[0]['lr']))
+            rate = self.optimizer.param_groups[0]['lr']
+            print("The rate of optimizer is {} in the next loop.".format(rate))
             pass
 
     def load(self, what='weight', path=None):
@@ -176,8 +170,10 @@ class machine:
         if(path):
             
             self.model.load_state_dict(torch.load(path, map_location=torch.device('cpu')))
-            pass
+            print("Finish loading.")
+            return
         
+        print("Fail loading.")
         pass
 
 

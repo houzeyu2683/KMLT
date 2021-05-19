@@ -45,7 +45,7 @@ class tabulation:
         output = pandas.concat(output, axis=0)
         return(output)
 
-    ##  Resample data of table with target, the target is dictionary type.
+    ##
     def unbalance(table, target, size):
 
         group = []

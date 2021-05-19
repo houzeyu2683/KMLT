@@ -2,7 +2,7 @@
 
 ##
 ##  Packages.
-import torch, os, PIL.Image
+import torch, PIL.Image
 
 
 ##
@@ -28,7 +28,7 @@ class dataset(torch.utils.data.Dataset):
     def __getitem__(self, index):
 
         ##  Handle batch, case by case.
-        batch = {"variable":None, "image":None, "text": None}
+        batch = {"image":None, "text": None}
         
         ##  Select item by index.
         item  = self.table.iloc[index, :]
