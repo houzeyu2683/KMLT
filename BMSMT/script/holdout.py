@@ -40,11 +40,12 @@ folder   = "SOURCE/LOG"
 
 ##
 machine  = network.machine(model=model, optimizer=optimizer, criterion=criterion, device='cuda', folder=folder, checkpoint="0")
+machine.load(what='weight', path='SOURCE/LOG/9.checkpoint')
 
 ##
-iteration = 20
+iteration = 10
 history = {
-    'train' : {"cost":[]},
+#    'train' : {"cost":[]},
     'check' : {"cost":[]}
 }
 for epoch in range(iteration):
@@ -54,7 +55,7 @@ for epoch in range(iteration):
 
     if(epoch%1==0):
 
-        machine.measure(train=loader.train, check=loader.check)
+        machine.measure(check=loader.check)
         machine.save("checkpoint")
         machine.save("measurement")
 
@@ -62,11 +63,11 @@ for epoch in range(iteration):
         measurement = machine.measurement
         
         ##  History of epoch.
-        history['train']['cost'] += [measurement['train']['cost']]
+        #history['train']['cost'] += [measurement['train']['cost']]
         history['check']['cost'] += [measurement['check']['cost']]
         
         ##  Save the report.
-        report = network.report(train=history['train'], check=history['check'])
+        report = network.report(check=history['check'])
         report.summarize()
         report.save(folder=folder)
         pass

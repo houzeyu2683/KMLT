@@ -73,7 +73,7 @@ class machine:
             if(event[key]):
 
                 evaluation = {}
-                evaluation.update('cost',[])
+                evaluation.update({'cost':[]})
                 for batch in tqdm.tqdm(event[key], leave=False):
 
                     ##  Handle batch.

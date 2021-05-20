@@ -16,10 +16,10 @@ if(debug):
 
 ##  Group.
 group = {}
-group['size'] = 4
+group['size'] = 2
 group['table']   = [value['check'] for _, value in data.validation.fold(table=table, size=group['size']).items()]
 group['dataset'] = [data.dataset(i, image=data.process.image.review , text=data.process.text.tokenize) for i in group['table']] 
-group['loader']  = [data.loader(test=i, batch=16).test for i in group['dataset']]
+group['loader']  = [data.loader(test=i, batch=32).test for i in group['dataset']]
 
 ##
 model = network.model()
@@ -29,7 +29,7 @@ machine = network.machine(model=model, device='cuda')
 machine.load(what='weight', path="SOURCE/LOG/9.checkpoint")
 
 ##
-index = 0
+index = 1
 prediction = machine.predict(group['loader'][index], length=128)
 group['table'][index]['InChI'] = prediction
 submission = group['table'][index][['image_id', 'InChI']]
