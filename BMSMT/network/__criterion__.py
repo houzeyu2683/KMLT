@@ -16,7 +16,7 @@ class criterion:
         if(weight):
             
             weight = torch.tensor(weight, dtype=torch.float32)
-            loss   = torch.nn.CrossEntropyLoss(weight=weight, ignore_index=65)
+            loss   = torch.nn.CrossEntropyLoss(weight=weight)
             pass
 
         else:

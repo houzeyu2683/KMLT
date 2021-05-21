@@ -73,8 +73,8 @@ class model(torch.nn.Module):
         layer = {}
         layer['image to index 01'] = nn.Sequential(*list(torchvision.models.resnet18(True).children())[:-1], nn.Sigmoid())
         layer['image to index 02'] = nn.Sequential(nn.Linear(512, 1), nn.Sigmoid())
-        layer['text encoder'] = nn.TransformerEncoder(nn.TransformerEncoderLayer(d_model=self.number['embedding'], nhead=2), num_layers=2)
-        layer['text decoder'] = nn.TransformerDecoder(nn.TransformerDecoderLayer(d_model=self.number['embedding'], nhead=2), num_layers=2)
+        layer['text encoder'] = nn.TransformerEncoder(nn.TransformerEncoderLayer(d_model=self.number['embedding'], nhead=2), num_layers=4)
+        layer['text decoder'] = nn.TransformerDecoder(nn.TransformerDecoderLayer(d_model=self.number['embedding'], nhead=2), num_layers=4)
         layer['text to embedding'] = nn.Embedding(self.number['vocabulary'], self.number['embedding'])
         layer['text to vacabulary'] = nn.Linear(self.number['embedding'], self.number['vocabulary'])
         self.layer = nn.ModuleDict(layer)

@@ -54,7 +54,7 @@ class machine:
             self.optimizer.step()
             pass
         
-        print("End of measure the {}.".format("train"))
+        print("End of epoch.")
         pass
 
     def measure(self, train=None, check=None):
@@ -72,8 +72,10 @@ class machine:
 
             if(event[key]):
 
-                evaluation = {}
-                evaluation.update('cost',[])
+                evaluation = {
+                    "cost":[],
+                    "score":[]
+                }
                 for batch in tqdm.tqdm(event[key], leave=False):
 
                     ##  Handle batch.
