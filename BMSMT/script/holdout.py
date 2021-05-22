@@ -3,16 +3,16 @@
 import data, network
 
 ##  Load table and skip real test data.
-table = data.tabulation.read("SOURCE/CSV/ANNOTATION.csv")
+table = data.tabulation.read("SOURCE/CSV/ANNOTATION.csv", 5000)
 table = data.tabulation.filter(table=table, column='mode', value='train')
 
-##  Debug or not.
-debug = False
-if(debug):
+# ##  Debug or not.
+# debug = False
+# if(debug):
 
-    number = round(len(table)/5000)
-    table  = table.sample(number)
-    pass
+#     number = round(len(table)/5000)
+#     table  = table.sample(number)
+#     pass
 
 ##  Split table to train and check type.
 train, check = data.validation.split(table, classification=None, ratio=0.1)
