@@ -3,16 +3,16 @@
 import data, network
 
 ##  Load table and skip real test data.
-table = data.tabulation.read("SOURCE/CSV/ANNOTATION.csv")
+table = data.tabulation.read("SOURCE/CSV/ANNOTATION.csv", 5000)
 table = data.tabulation.filter(table=table, column='mode', value='train')
 
-##  Debug or not.
-debug = False
-if(debug):
+# ##  Debug or not.
+# debug = False
+# if(debug):
 
-    number = round(len(table)/5000)
-    table  = table.sample(number)
-    pass
+#     number = round(len(table)/5000)
+#     table  = table.sample(number)
+#     pass
 
 ##  Split table to train and check type.
 train, check = data.validation.split(table, classification=None, ratio=0.1)
@@ -22,7 +22,7 @@ train['dataset'] = data.dataset(train['table'], image=data.process.image.learn ,
 check['dataset'] = data.dataset(check['table'], image=data.process.image.review, text=data.process.text.tokenize)
 
 ##
-loader = data.loader(train=train['dataset'], check=check['dataset'], batch=32)
+loader = data.loader(train=train['dataset'], check=check['dataset'], batch=16)
 if(loader.available("train") and loader.available("check")):
     
     print("Loader work successfully.")
@@ -43,7 +43,7 @@ machine  = network.machine(model=model, optimizer=optimizer, criterion=criterion
 machine.load(what='weight', path='SOURCE/LOG/9.checkpoint')
 
 ##
-iteration = 20
+iteration = 1
 history = {
     'check' : {"cost":[]}
 }
