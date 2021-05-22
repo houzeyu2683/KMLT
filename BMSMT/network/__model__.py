@@ -79,7 +79,7 @@ class model(torch.nn.Module):
         pass
 
         image = nn.ModuleDict({
-            "01" : nn.Sequential(*list(torchvision.models.resnet18(True).children())[:-1]),
+            "01" : nn.Sequential(*list(torchvision.models.resnet18(True).children())[:-1], nn.Sigmoid()),
             "02" : nn.Sequential(nn.Linear(1,128), nn.Linear(128, 256), nn.Linear(256, size['vocabulary'])),
             "03" : nn.Softmax(dim=2)
         })
@@ -121,22 +121,23 @@ class model(torch.nn.Module):
         cell = {}
         cell['01'] = self.layer['image']['01'](image).squeeze()
         cell['02'] = self.layer['image']['02'](cell['01'].unsqueeze(dim=2)).transpose(0,1)
-        cell['03'] = self.layer['image']['03'](cell['02']).argmax(dim=2)
-        cell['04'] = (self.layer['text']['04'](cell['01']) * (512-3)).int().flatten().tolist()
-
+        cell['03'] = self.layer['image']['03'](cell['02'])
+        index = cell['03'].argmax(dim=2)
+        cell['04'] = (self.layer['text']['04'](cell['01']) * (512-3))
+        length = cell['04'].int().flatten().tolist()
         ##
-        for column, row in enumerate(cell['04']):
+        for column, row in enumerate(length):
 
-            cell['03'][0, column] = self.vocabulary['<bos>']
-            cell['03'][row, column] = self.vocabulary['<eos>']
-            cell['03'][row+1:, column] = self.vocabulary['<pad>']
+            index[0, column] = self.vocabulary['<bos>']
+            index[row, column] = self.vocabulary['<eos>']
+            index[row+1:, column] = self.vocabulary['<pad>']
             pass 
         
         ##
         cell['05'] = self.layer['text']['05'](
-            self.layer['text']['embedding'](cell['03']), 
-            mask.encode(cell['03']), 
-            mask.pad(cell['03'], vocabulary=self.vocabulary)            
+            self.layer['text']['embedding'](index), 
+            mask.encode(index), 
+            mask.pad(index, vocabulary=self.vocabulary)            
         )
 
         ##
