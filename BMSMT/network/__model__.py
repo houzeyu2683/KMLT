@@ -80,7 +80,7 @@ class model(torch.nn.Module):
 
         image = nn.ModuleDict({
             "01" : nn.Sequential(*list(torchvision.models.resnet18(True).children())[:-1]),
-            "02" : nn.Sequential(nn.GRU(1, size['vocabulary'], 1)),
+            "02" : nn.Sequential(nn.Linear(1,128), nn.Linear(128, 256), nn.Linear(256, size['vocabulary'])),
             "03" : nn.Softmax(dim=2)
         })
         text = nn.ModuleDict({
@@ -120,7 +120,7 @@ class model(torch.nn.Module):
         ##
         cell = {}
         cell['01'] = self.layer['image']['01'](image).squeeze()
-        cell['02'], _ = self.layer['image']['02'](cell['01'].transpose(0,1).unsqueeze(dim=2))
+        cell['02'] = self.layer['image']['02'](cell['01'].unsqueeze(dim=2)).transpose(0,1)
         cell['03'] = self.layer['image']['03'](cell['02']).argmax(dim=2)
         cell['04'] = (self.layer['text']['04'](cell['01']) * (512-3)).int().flatten().tolist()
 

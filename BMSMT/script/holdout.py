@@ -73,3 +73,5 @@ for epoch in range(iteration):
     machine.update('checkpoint')
     pass
 
+
+
