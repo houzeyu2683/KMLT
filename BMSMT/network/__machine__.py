@@ -38,11 +38,10 @@ class machine:
         self.model = self.model.to(self.device)
         pass
 
-        for batch in tqdm.tqdm(train, leave=False):
+        for image, text in tqdm.tqdm(train, leave=False):
 
             ##  Handle batch.
-            image, text = batch
-            text = text.to(self.device)
+            text   = self.model.convert(text).to(self.device)
             image  = image.to(self.device)
             batch  = image, text[:-1,:]
 
@@ -76,11 +75,10 @@ class machine:
                     "cost":[],
                     "score":[]
                 }
-                for batch in tqdm.tqdm(event[key], leave=False):
+                for image, text in tqdm.tqdm(event[key], leave=False):
 
                     ##  Handle batch.
-                    image, text = batch
-                    image, text = image.to(self.device), text.to(self.device)
+                    image, text = image.to(self.device), self.model.convert(text).to(self.device)
                     batch = image, text[:-1,:]
 
                     ##  Evaluate item.
@@ -107,21 +105,21 @@ class machine:
         self.measurement = measurement
         pass
 
-    def predict(self, test, length):
+    # def predict(self, test, length):
 
-        self.model = self.model.to(self.device)
-        self.model.eval()
-        pass
+    #     self.model = self.model.to(self.device)
+    #     self.model.eval()
+    #     pass
 
-        prediction = []
-        for batch in tqdm.tqdm(test, leave=False):
+    #     prediction = []
+    #     for batch in tqdm.tqdm(test, leave=False):
 
-            image, _ = batch
-            image = image.to(self.device)
-            prediction += self.model.convert(image, length)
-            pass
+    #         image, _ = batch
+    #         image = image.to(self.device)
+    #         prediction += self.model.convert(image, length)
+    #         pass
         
-        return(prediction)
+    #     return(prediction)
 
     def save(self, what='checkpoint'):
 

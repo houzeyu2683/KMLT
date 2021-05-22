@@ -3,17 +3,17 @@
 
 ##
 ##  Packages.
-import torch, pickle
+import torch
 from torch.utils.data import DataLoader
 
 
 ##
 ##
-path = "SOURCE/PICKLE/VOCABULARY.pickle"
-with open(path, 'rb') as paper:
+# path = "SOURCE/PICKLE/VOCABULARY.pickle"
+# with open(path, 'rb') as paper:
 
-    vocabulary = pickle.load(paper)
-    pass
+#     vocabulary = pickle.load(paper)
+#     pass
 
 
 ##
@@ -30,12 +30,13 @@ def sample(collection):
         batch['image'].append(image)
         pass
 
-        text = [vocabulary['<bos>']] + [vocabulary[i] for i in text] + [vocabulary['<eos>']]
-        text = torch.tensor(text, dtype=torch.long)
+        # text = [vocabulary['<bos>']] + [vocabulary[i] for i in text] + [vocabulary['<eos>']]
+        # text = torch.tensor(text, dtype=torch.long)
         batch['text'].append(text)
         pass
 
-    batch['text']  = torch.nn.utils.rnn.pad_sequence(batch['text'], padding_value=vocabulary['<pad>'])
+    # batch['text']  = torch.nn.utils.rnn.pad_sequence(batch['text'], padding_value=vocabulary['<pad>'])
+    batch['text']  = batch['text']
     batch['image'] = torch.cat(batch['image'], dim=0)
     return(batch['image'], batch['text'])
 
@@ -48,7 +49,7 @@ class loader:
 
         if(train):
             
-            self.train = DataLoader(train, batch_size=batch, shuffle=True , drop_last=False, collate_fn=sample)
+            self.train = DataLoader(train, batch_size=batch, shuffle=True , drop_last=True, collate_fn=sample)
             pass
 
         if(check):
