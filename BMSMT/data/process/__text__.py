@@ -2,46 +2,64 @@
 
 ##
 ##
-import string, torch, pickle
+import string
+
+
+##
+##
+def tokenize(item):
+
+    loop = enumerate(list(item))
+
+    token = []
+    for _, letter in loop:
+            
+        if(letter in string.ascii_lowercase):
+
+            if(token==[]):
+                    
+                token = token + [letter]
+                pass
+
+            if(not token[-1] in string.punctuation):
+            
+                token[-1] = token[-1] + letter
+                continue
+
+            pass
+
+        if(letter in string.digits):
+
+            if(token[-1] in string.digits):
+
+                token[-1] = token[-1] + letter
+                continue
+
+            pass
+            
+        token = token + [letter]
+        pass
+        
+    output = token
+    return(output)
 
 
 ##
 ##
 class text:
 
-    def tokenize(item):
+    def learn(item):
 
-        loop = enumerate(list(item))
-
-        token = []
-        for _, letter in loop:
-            
-            if(letter in string.ascii_lowercase):
-
-                if(not token[-1] in string.punctuation):
-                
-                    token[-1] = token[-1] + letter
-                    continue
-
-                pass
-
-            if(letter in string.digits):
-
-                if(token[-1] in string.digits):
-
-                    token[-1] = token[-1] + letter
-                    continue
-
-                pass
-            
-            token = token + [letter]
-            pass
-        
-        # index = [vocabulary['<bos>']] + [vocabulary[i] for i in token] + [vocabulary['<eos>']]
-        # index = index + ([vocabulary['<pad>']] * (length - len(index)))
-        # index = torch.tensor(index, dtype=torch.long)
-        output = token
+        output = tokenize(item)
         return(output)
+
+    def review(item):
+
+        output = tokenize(item)
+        return(output)
+
+
+
 
 
 

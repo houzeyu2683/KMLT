@@ -1,36 +1,37 @@
 
 ##  Packages.
-import data, network
+import data
 
 ##  Load table and skip real test data.
-table = data.tabulation.read("SOURCE/CSV/ANNOTATION.csv")
+table = data.tabulation.read("SOURCE/CSV/ANNOTATION.csv", number=5000)
 table = data.tabulation.filter(table=table, column='mode', value='train')
 
-##  Debug or not.
-debug = False
-if(debug):
-
-    number = round(len(table)/4000)
-    table  = table.sample(number)
-    pass
-
 ##  Split table to train and check type.
-train, check = data.validation.split(table, classification=None, ratio=0.2)
+train, check = data.validation.split(table, classification=None, ratio=0.1)
 
 ##  Initialize the dataset.
-train['dataset'] = data.dataset(train['table'], image=data.process.image.learn , text=data.process.text.tokenize)
-check['dataset'] = data.dataset(check['table'], image=data.process.image.review, text=data.process.text.tokenize)
+train['dataset'] = data.dataset(train['table'], image=data.process.image.learn , text=data.process.text.learn)
+check['dataset'] = data.dataset(check['table'], image=data.process.image.review, text=data.process.text.review)
 
 ##
-loader = data.loader(train=train['dataset'], check=check['dataset'], batch=8)
+loader = data.loader(train=train['dataset'], check=check['dataset'], batch=16)
 if(loader.available("train") and loader.available("check")):
-    
+
+    batch = next(iter(loader.train))    
     print("Loader work successfully.")
     pass
 
 ##
-model     = network.model()
-criterion = network.criterion.cel()
+vocabulary = data.vocabulary.load("SOURCE/PICKLE/VOCABULARY.pickle")
+
+##
+import network
+
+##
+model = network.model(vocabulary=vocabulary)
+# model(next(iter(loader.train)))
+
+criterion = network.criterion.cel(ignore=vocabulary['<pad>'])
 
 ##
 optimizer = network.optimizer.adam(model)
@@ -40,11 +41,12 @@ folder   = "SOURCE/LOG"
 
 ##
 machine  = network.machine(model=model, optimizer=optimizer, criterion=criterion, device='cuda', folder=folder, checkpoint="0")
+# machine.load(what='weight', path='SOURCE/LOG/9.checkpoint')
 
 ##
 iteration = 20
 history = {
-    'train' : {"cost":[]},
+    # 'train' : {"cost":[]},
     'check' : {"cost":[]}
 }
 for epoch in range(iteration):
@@ -54,7 +56,7 @@ for epoch in range(iteration):
 
     if(epoch%1==0):
 
-        machine.measure(train=loader.train, check=loader.check)
+        machine.measure(check=loader.check)
         machine.save("checkpoint")
         machine.save("measurement")
 
@@ -62,11 +64,11 @@ for epoch in range(iteration):
         measurement = machine.measurement
         
         ##  History of epoch.
-        history['train']['cost'] += [measurement['train']['cost']]
+        # history['train']['cost'] += [measurement['train']['cost']]
         history['check']['cost'] += [measurement['check']['cost']]
         
         ##  Save the report.
-        report = network.report(train=history['train'], check=history['check'])
+        report = network.report(check=history['check'])
         report.summarize()
         report.save(folder=folder)
         pass
@@ -77,8 +79,4 @@ for epoch in range(iteration):
     pass
 
 
-#measurement['check'][''][0,:][511,:]
-# measurement['check']['target'][0]
-# # import numpy
-# numpy.argmax(measurement['check']['likelihood'][0,:], axis=1)
 

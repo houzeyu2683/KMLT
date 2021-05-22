@@ -52,3 +52,10 @@ for index in range(group['size']):
 
 
 
+import pandas
+group = [
+    pandas.read_csv("SOURCE/SUBMISSION-0.csv"),
+    pandas.read_csv("SOURCE/SUBMISSION-1.csv")
+]
+paper = pandas.concat([pandas.read_csv("SOURCE/SUBMISSION-0.csv"), pandas.read_csv("SOURCE/SUBMISSION-1.csv")])
+paper.to_csv("SUB.csv", index=False)

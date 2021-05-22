@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 
 ##
 ##
-path = "SOURCE/PICKLE/VOCABULARY.pickle"
+path='SOURCE/PICKLE/VOCABULARY.pickle'
 with open(path, 'rb') as paper:
 
     vocabulary = pickle.load(paper)
@@ -48,7 +48,7 @@ class loader:
 
         if(train):
             
-            self.train = DataLoader(train, batch_size=batch, shuffle=True , drop_last=False, collate_fn=sample)
+            self.train = DataLoader(train, batch_size=batch, shuffle=True , drop_last=True, collate_fn=sample)
             pass
 
         if(check):
@@ -96,3 +96,6 @@ class loader:
 
                 return(False)
 
+
+
+# batch['text']  = torch.nn.utils.rnn.pad_sequence(batch['text'], padding_value=vocabulary['<pad>'])

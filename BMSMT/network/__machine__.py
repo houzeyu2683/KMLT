@@ -28,7 +28,7 @@ class machine:
         ##  Optimizer schedule.
         if(self.optimizer):
 
-            self.schedule = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=5, gamma=0.5, last_epoch=-1, verbose=False)
+            self.schedule = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=5, gamma=0.9, last_epoch=-1, verbose=False)
             pass
 
     def learn(self, train):
@@ -38,12 +38,10 @@ class machine:
         self.model = self.model.to(self.device)
         pass
 
-        for batch in tqdm.tqdm(train, leave=False):
+        for image, text in tqdm.tqdm(train, leave=False):
 
             ##  Handle batch.
-            image, text = batch
-            text = text.to(self.device)
-            image  = image.to(self.device)
+            image, text  = image.to(self.device), text.to(self.device)
             batch  = image, text[:-1,:]
 
             ##  Update weight.
@@ -54,7 +52,7 @@ class machine:
             self.optimizer.step()
             pass
         
-        print("End of measure the {}.".format("train"))
+        print("End of epoch.")
         pass
 
     def measure(self, train=None, check=None):
@@ -72,23 +70,23 @@ class machine:
 
             if(event[key]):
 
-                evaluation = {}
-                evaluation.update('cost',[])
-                for batch in tqdm.tqdm(event[key], leave=False):
+                evaluation = {
+                    'cost':[]
+                }
+                for image, text in tqdm.tqdm(event[key], leave=False):
 
                     ##  Handle batch.
-                    image, text = batch
                     image, text = image.to(self.device), text.to(self.device)
                     batch = image, text[:-1,:]
 
                     ##  Evaluate item.
                     item = {
                         "likelihood":None,
-                        "target":None
+                        "index":None
                     }
                     item["likelihood"] = self.model(batch).flatten(0,1)
-                    item['target']     = text[1:,:].flatten()
-                    cost = self.criterion(item['likelihood'], item['target']).cpu().detach().numpy().item()
+                    item['index']     = text[1:,:].flatten()
+                    cost = self.criterion(item['likelihood'], item['index']).cpu().detach().numpy().item()
                     evaluation['cost']  += [cost]
                     pass
                 
@@ -105,21 +103,21 @@ class machine:
         self.measurement = measurement
         pass
 
-    def predict(self, test, length):
+    # def predict(self, test, length):
 
-        self.model = self.model.to(self.device)
-        self.model.eval()
-        pass
+    #     self.model = self.model.to(self.device)
+    #     self.model.eval()
+    #     pass
 
-        prediction = []
-        for batch in tqdm.tqdm(test, leave=False):
+    #     prediction = []
+    #     for batch in tqdm.tqdm(test, leave=False):
 
-            image, _ = batch
-            image = image.to(self.device)
-            prediction += self.model.convert(image, length)
-            pass
+    #         image, _ = batch
+    #         image = image.to(self.device)
+    #         prediction += self.model.convert(image, length)
+    #         pass
         
-        return(prediction)
+    #     return(prediction)
 
     def save(self, what='checkpoint'):
 

@@ -2,20 +2,18 @@
 
 ##
 ##  Packages.
-import torch, PIL.Image
+import torch
 
 
 ##
 ##  Class for dataset.
 class dataset(torch.utils.data.Dataset):
 
-    def __init__(self, table, variable=None, image=None, text=None):
+    def __init__(self, table, image=None, text=None):
 
         self.table    = table
         pass
         
-        ##  Define the process function for each type, case by case.
-        self.variable = variable
         self.image    = image
         self.text     = text
         pass
@@ -32,16 +30,11 @@ class dataset(torch.utils.data.Dataset):
         
         ##  Select item by index.
         item  = self.table.iloc[index, :]
-
-        ##  Process variable, case by case.
-        if(self.variable):
-
-            pass
         
         ##  Process image, case by case.
         if(self.image):
 
-            batch['image'] = self.image(PIL.Image.open(item['image']).convert("RGB"))
+            batch['image'] = self.image(item['image'])
             pass
         
         ##  Process text, case by case.
