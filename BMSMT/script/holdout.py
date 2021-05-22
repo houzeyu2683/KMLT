@@ -6,6 +6,14 @@ import data, network
 table = data.tabulation.read("SOURCE/CSV/ANNOTATION.csv", number=5000)
 table = data.tabulation.filter(table=table, column='mode', value='train')
 
+##  Debug or not.
+debug = False
+if(debug):
+
+    number = round(len(table)/5000)
+    table  = table.sample(number)
+    pass
+
 ##  Split table to train and check type.
 train, check = data.validation.split(table, classification=None, ratio=0.1)
 
@@ -14,7 +22,7 @@ train['dataset'] = data.dataset(train['table'], image=data.process.image.learn ,
 check['dataset'] = data.dataset(check['table'], image=data.process.image.review, text=data.process.text.review)
 
 ##
-loader = data.loader(train=train['dataset'], check=check['dataset'], batch=8)
+loader = data.loader(train=train['dataset'], check=check['dataset'], batch=32)
 if(loader.available("train") and loader.available("check")):
     
     print("Loader work successfully.")
@@ -37,11 +45,11 @@ folder   = "SOURCE/LOG"
 
 ##
 machine  = network.machine(model=model, optimizer=optimizer, criterion=criterion, device='cuda', folder=folder, checkpoint="0")
+machine.load(what='weight', path='SOURCE/LOG/9.checkpoint')
 
 ##
-iteration = 1
+iteration = 20
 history = {
-    'train' : {"cost":[]},
     'check' : {"cost":[]}
 }
 for epoch in range(iteration):
@@ -51,7 +59,7 @@ for epoch in range(iteration):
 
     if(epoch%1==0):
 
-        machine.measure(train=loader.train, check=loader.check)
+        machine.measure(check=loader.check)
         machine.save("checkpoint")
         machine.save("measurement")
 
@@ -59,11 +67,10 @@ for epoch in range(iteration):
         measurement = machine.measurement
         
         ##  History of epoch.
-        history['train']['cost'] += [measurement['train']['cost']]
         history['check']['cost'] += [measurement['check']['cost']]
         
         ##  Save the report.
-        report = network.report(train=history['train'], check=history['check'])
+        report = network.report(check=history['check'])
         report.summarize()
         report.save(folder=folder)
         pass

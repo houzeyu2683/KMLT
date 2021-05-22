@@ -72,10 +72,9 @@ class machine:
             if(event[key]):
 
                 evaluation = {
-                    "cost":[],
-                    "score":[]
+                    'cost':[]
                 }
-                for image, text in tqdm.tqdm(event[key], leave=False):
+                for batch in tqdm.tqdm(event[key], leave=False):
 
                     ##  Handle batch.
                     image, text = image.to(self.device), self.model.convert(text).to(self.device)
