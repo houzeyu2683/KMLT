@@ -16,7 +16,7 @@ class image:
         sigma    = (0.5,0.5,0.5)
         size     = (224, 224)
         pipeline = [
-            kit.RandomRotation(0, 360),
+            kit.RandomRotation((0, 360)),
             kit.RandomHorizontalFlip(0.5),
             kit.RandomVerticalFlip(0.5),
             kit.Resize(size),

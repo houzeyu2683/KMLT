@@ -10,19 +10,19 @@ table = data.tabulation.filter(table=table, column='mode', value='train')
 debug = False
 if(debug):
 
-    number = round(len(table)/4000)
+    number = round(len(table)/5000)
     table  = table.sample(number)
     pass
 
 ##  Split table to train and check type.
-train, check = data.validation.split(table, classification=None, ratio=0.2)
+train, check = data.validation.split(table, classification=None, ratio=0.1)
 
 ##  Initialize the dataset.
 train['dataset'] = data.dataset(train['table'], image=data.process.image.learn , text=data.process.text.tokenize)
 check['dataset'] = data.dataset(check['table'], image=data.process.image.review, text=data.process.text.tokenize)
 
 ##
-loader = data.loader(train=train['dataset'], check=check['dataset'], batch=8)
+loader = data.loader(train=train['dataset'], check=check['dataset'], batch=32)
 if(loader.available("train") and loader.available("check")):
     
     print("Loader work successfully.")
@@ -43,9 +43,8 @@ machine  = network.machine(model=model, optimizer=optimizer, criterion=criterion
 machine.load(what='weight', path='SOURCE/LOG/9.checkpoint')
 
 ##
-iteration = 10
+iteration = 20
 history = {
-#    'train' : {"cost":[]},
     'check' : {"cost":[]}
 }
 for epoch in range(iteration):
@@ -63,7 +62,6 @@ for epoch in range(iteration):
         measurement = machine.measurement
         
         ##  History of epoch.
-        #history['train']['cost'] += [measurement['train']['cost']]
         history['check']['cost'] += [measurement['check']['cost']]
         
         ##  Save the report.

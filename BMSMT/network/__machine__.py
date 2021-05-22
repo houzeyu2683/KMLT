@@ -54,7 +54,7 @@ class machine:
             self.optimizer.step()
             pass
         
-        print("End of measure the {}.".format("train"))
+        print("End of epoch.")
         pass
 
     def measure(self, train=None, check=None):
