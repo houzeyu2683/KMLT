@@ -74,7 +74,7 @@ class machine:
                 evaluation = {
                     'cost':[]
                 }
-                for batch in tqdm.tqdm(event[key], leave=False):
+                for image, text in tqdm.tqdm(event[key], leave=False):
 
                     ##  Handle batch.
                     image, text = image.to(self.device), self.model.convert(text).to(self.device)
