@@ -9,9 +9,18 @@ import pandas
 ##  Class for tabulation.
 class tabulation:
     
-    def read(path):
+    def read(path, number=None):
 
-        output = pandas.read_csv(path, dtype = str)
+        if(number):
+
+            output = pandas.read_csv(path, dtype = str, nrows=number)
+            pass
+
+        else:
+
+            output = pandas.read_csv(path, dtype = str)
+            pass
+        
         return(output)
 
     ##  Filter by column.

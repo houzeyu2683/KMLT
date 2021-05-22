@@ -3,7 +3,7 @@
 import data, network
 
 ##  Load table and skip real test data.
-table = data.tabulation.read("SOURCE/CSV/ANNOTATION.csv")
+table = data.tabulation.read("SOURCE/CSV/ANNOTATION.csv", number=5000)
 table = data.tabulation.filter(table=table, column='mode', value='train')
 
 ##  Debug or not.
@@ -18,8 +18,8 @@ if(debug):
 train, check = data.validation.split(table, classification=None, ratio=0.1)
 
 ##  Initialize the dataset.
-train['dataset'] = data.dataset(train['table'], image=data.process.image.learn , text=data.process.text.tokenize)
-check['dataset'] = data.dataset(check['table'], image=data.process.image.review, text=data.process.text.tokenize)
+train['dataset'] = data.dataset(train['table'], image=data.process.image.learn , text=data.process.text.learn)
+check['dataset'] = data.dataset(check['table'], image=data.process.image.review, text=data.process.text.review)
 
 ##
 loader = data.loader(train=train['dataset'], check=check['dataset'], batch=32)
@@ -29,8 +29,13 @@ if(loader.available("train") and loader.available("check")):
     pass
 
 ##
-model     = network.model()
-criterion = network.criterion.cel()
+vocabulary = data.process.vocabulary.load("SOURCE/PICKLE/VOCABULARY.pickle")
+
+##
+model = network.model(vocabulary=vocabulary)
+# model(next(iter(loader.train)))
+
+criterion = network.criterion.cel(ignore=vocabulary['<pad>'])
 
 ##
 optimizer = network.optimizer.adam(model)
@@ -74,10 +79,4 @@ for epoch in range(iteration):
     machine.update('schedule')
     machine.update('checkpoint')
     pass
-
-
-#measurement['check'][''][0,:][511,:]
-# measurement['check']['target'][0]
-# # import numpy
-# numpy.argmax(measurement['check']['likelihood'][0,:], axis=1)
 

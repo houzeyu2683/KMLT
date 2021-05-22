@@ -2,7 +2,7 @@
 
 ##
 ##  Packages.
-import PIL.Image, os, torch, numpy
+import PIL.Image, torch
 from torchvision import transforms as kit
 
 
@@ -24,6 +24,9 @@ class image:
             kit.Normalize(mean = mu, std = sigma)
         ]
         action = kit.Compose(pipeline)
+        pass
+        
+        item   = PIL.Image.open(item).convert("RGB")
         output = action(item).type(torch.float)
         return(output)
 
@@ -38,5 +41,8 @@ class image:
             kit.Normalize(mean = mu, std = sigma)      
         ]
         action = kit.Compose(pipeline)
+        pass
+
+        item   = PIL.Image.open(item).convert("RGB")
         output = action(item).type(torch.float)
         return(output)
