@@ -67,13 +67,13 @@ class model(torch.nn.Module):
 
         image = nn.ModuleDict({
             "01" : nn.Sequential(*list(torchvision.models.resnet18(True).children())[:-1]),
-            "02" : nn.Sequential(nn.Linear(1,128), nn.Linear(128, 256), nn.Linear(256, size['vocabulary'])),
+            "02" : nn.Sequential(nn.Linear(1,128), nn.Tanh(), nn.Linear(128, size['vocabulary'])),
             "03" : nn.GRU(size['vocabulary'], size['vocabulary'], 2)
         })
         text = nn.ModuleDict({
             "04" : nn.Sequential(nn.Linear(512, 1), nn.Sigmoid()),
-            "05" : nn.TransformerEncoder(nn.TransformerEncoderLayer(d_model=size['embedding'], nhead=6), num_layers=8),
-            "06" : nn.TransformerDecoder(nn.TransformerDecoderLayer(d_model=size['embedding'], nhead=6), num_layers=8),
+            "05" : nn.TransformerEncoder(nn.TransformerEncoderLayer(d_model=size['embedding'], nhead=2), num_layers=2),
+            "06" : nn.TransformerDecoder(nn.TransformerDecoderLayer(d_model=size['embedding'], nhead=2), num_layers=2),
             "07" : nn.Sequential(nn.Linear(size['embedding'], size['vocabulary'])),
             "embedding" : nn.Embedding(size['vocabulary'], size['embedding'])
         })
