@@ -3,7 +3,7 @@
 ##
 ##  Packages.
 import os, tqdm, torch, numpy, pickle
-
+import Levenshtein
 
 ##
 ##  Class for machine learning process, case by case.
@@ -38,16 +38,16 @@ class machine:
         self.model = self.model.to(self.device)
         pass
 
-        for image, text in tqdm.tqdm(train, leave=False):
+        for image, token, text in tqdm.tqdm(train, leave=False):
 
             ##  Handle batch.
-            image, text  = image.to(self.device), text.to(self.device)
-            batch  = image, text[:-1,:]
+            image, token, text = image.to(self.device), token.to(self.device), text
+            batch  = image, token[:-1,:], text
 
             ##  Update weight.
             self.optimizer.zero_grad()
             output = self.model(batch)
-            loss   = self.criterion.to(self.device)(output.flatten(0,1), text[1:,:].flatten())
+            loss   = self.criterion.to(self.device)(output.flatten(0,1), token[1:,:].flatten())
             loss.backward()
             self.optimizer.step()
             pass
@@ -71,28 +71,34 @@ class machine:
             if(event[key]):
 
                 evaluation = {
-                    'cost':[]
+                    'cost':[],
+                    "score":[]
                 }
-                for image, text in tqdm.tqdm(event[key], leave=False):
+                for image, token, text in tqdm.tqdm(event[key], leave=False):
 
                     ##  Handle batch.
-                    image, text = image.to(self.device), text.to(self.device)
-                    batch = image, text[:-1,:]
+                    image, token, text = image.to(self.device), token.to(self.device), text
+                    batch = image, token[:-1,:], text
 
                     ##  Evaluate item.
-                    item = {
-                        "likelihood":None,
-                        "index":None
-                    }
+                    item = {}
                     item["likelihood"] = self.model(batch).flatten(0,1)
-                    item['index']     = text[1:,:].flatten()
-                    cost = self.criterion(item['likelihood'], item['index']).cpu().detach().numpy().item()
+                    item['index']      = token[1:,:].flatten()
+                    item['prediction'] = self.model.convert(image, size=128)
+                    item['text']       = text
+
+                    ##
+                    score = numpy.mean([Levenshtein.distance(x, y) for x, y in zip(item['prediction'], item['text'])])
+                    cost  = self.criterion(item['likelihood'], item['index']).cpu().detach().numpy().item()
+
+                    ##
                     evaluation['cost']  += [cost]
+                    evaluation['score'] += [score]
                     pass
                 
                 ##  Summarize evaluation.
-                evaluation['cost'] = numpy.mean(evaluation['cost'])
-                
+                evaluation['cost']  = numpy.mean(evaluation['cost'])
+                evaluation['score'] = numpy.mean(evaluation['score'])
                 pass
 
                 ##  Insert evaluation to measurement.

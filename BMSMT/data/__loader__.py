@@ -22,22 +22,27 @@ def sample(collection):
 
     batch = {
         "image":[],
-        "text":[]
+        "text" :[],
+        "token":[]
     }
-    for _, (image, text) in enumerate(collection):
+    for _, (image, token) in enumerate(collection):
 
         image = torch.unsqueeze(image, dim=0)
         batch['image'].append(image)
         pass
 
-        text = [vocabulary['<bos>']] + [vocabulary[i] for i in text] + [vocabulary['<eos>']]
-        text = torch.tensor(text, dtype=torch.long)
-        batch['text'].append(text)
+        text = "".join(token)
+        batch['text'] += [text]
         pass
 
-    batch['text']  = torch.nn.utils.rnn.pad_sequence(batch['text'], padding_value=vocabulary['<pad>'])
+        token = [vocabulary['<bos>']] + [vocabulary[i] for i in token] + [vocabulary['<eos>']]
+        token = torch.tensor(token, dtype=torch.long)
+        batch['token'].append(token)
+        pass
+
+    batch['token']  = torch.nn.utils.rnn.pad_sequence(batch['token'], padding_value=vocabulary['<pad>'])
     batch['image'] = torch.cat(batch['image'], dim=0)
-    return(batch['image'], batch['text'])
+    return(batch['image'], batch['token'], batch['text'])
 
 
 ##

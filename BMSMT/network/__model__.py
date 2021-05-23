@@ -2,7 +2,7 @@
 
 ##
 ##
-import torch, torchvision, pickle
+import torch, torchvision
 import torch.nn as nn
 
 
@@ -67,52 +67,34 @@ class model(torch.nn.Module):
 
         image = nn.ModuleDict({
             "01" : nn.Sequential(*list(torchvision.models.resnet18(True).children())[:-1]),
-            "02" : nn.Sequential(nn.Linear(1,128), nn.Linear(128, 256), nn.Linear(256, size['vocabulary'])),
-            "03" : nn.GRU(size['vocabulary'], size['vocabulary'], 2)
+            "02" : nn.Sequential(nn.Linear(1, size['vocabulary']))
         })
-        text = nn.ModuleDict({
-            "04" : nn.Sequential(nn.Linear(512, 1), nn.Sigmoid()),
-            "05" : nn.TransformerEncoder(nn.TransformerEncoderLayer(d_model=size['embedding'], nhead=6), num_layers=8),
-            "06" : nn.TransformerDecoder(nn.TransformerDecoderLayer(d_model=size['embedding'], nhead=6), num_layers=8),
-            "07" : nn.Sequential(nn.Linear(size['embedding'], size['vocabulary'])),
+        token = nn.ModuleDict({
+            "03" : nn.Sequential(nn.Linear(512, 1), nn.Sigmoid()),
+            "04" : nn.TransformerEncoder(nn.TransformerEncoderLayer(d_model=size['embedding'], nhead=4), num_layers=8),
+            "05" : nn.TransformerDecoder(nn.TransformerDecoderLayer(d_model=size['embedding'], nhead=4), num_layers=8),
+            "06" : nn.Sequential(nn.Linear(size['embedding'], size['vocabulary'])),
             "embedding" : nn.Embedding(size['vocabulary'], size['embedding'])
         })
         layer = {
             "image":image,
-            "text":text
+            "token":token
         }
         self.layer = nn.ModuleDict(layer)
         pass
     
-
-    # def convert(self, batch):
-
-    #     image, text = batch
-    #     index = [] 
-    #     for item in text:
-
-    #         item = [self.vocabulary['<bos>']] + [self.vocabulary[i] for i in item] + [self.vocabulary['<eos>']]
-    #         item = torch.tensor(item, dtype=torch.long)
-    #         index += [item]
-    #         pass
-
-    #     index = torch.nn.utils.rnn.pad_sequence(index, padding_value=self.vocabulary['<pad>'])
-    #     return(index)
-
-
     def forward(self, batch):
         
         ##
-        image, text = batch
+        image, token, _ = batch
 
         ##
         cell = {}
         cell['01'] = self.layer['image']['01'](image).squeeze()
         cell['02'] = self.layer['image']['02'](cell['01'].unsqueeze(dim=2)).transpose(0,1)
-        cell['03'], _ = self.layer['image']['03'](cell['02'])
-        index = cell['03'].argmax(dim=2)
-        cell['04'] = self.layer['text']['04'](cell['01'])
-        length = (cell['04'] * (512-3)).int().flatten().tolist()
+        index = cell['02'].argmax(dim=2)
+        cell['03'] = self.layer['token']['03'](cell['01'])
+        length = (cell['03'] * (512-3)).int().flatten().tolist()
 
         ##
         for column, row in enumerate(length):
@@ -123,139 +105,88 @@ class model(torch.nn.Module):
             pass 
         
         ##
-        cell['05'] = self.layer['text']['05'](
-            self.layer['text']['embedding'](index), 
+        cell['04'] = self.layer['token']['04'](
+            self.layer['token']['embedding'](index), 
             mask.encode(index), 
             mask.pad(index, vocabulary=self.vocabulary)            
         )
 
         ##
         # text = dictionary.convert(text, vocabulary=self.vocabulary)
-        cell['06'] = self.layer['text']['06'](
-            self.layer['text']['embedding'](text),
-            cell['05'],
-            mask.decode(text),
+        cell['05'] = self.layer['token']['05'](
+            self.layer['token']['embedding'](token),
+            cell['04'],
+            mask.decode(token),
             None,
-            mask.pad(text, vocabulary=self.vocabulary),
+            mask.pad(token, vocabulary=self.vocabulary),
             None
         )
-        cell['07'] = self.layer['text']['07'](cell['06'])
-        return(cell['07'])
-# M07 = L07(L05(convert(text)), M06, mask.decode(convert(text)), None, mask.pad(convert(text), vocabulary=vocabulary))
+        cell['06'] = self.layer['token']['06'](cell['05'])
+        return(cell['06'])
 
+    def convert(self, image, size=128):
 
-# M08 =  L08(M07)
-#         midden = {}
-#         ##  Image to index of text, prototype.
-#         midden['image to index 01 (01)'] = self.layer['image to index 01'](image)
-#         midden['image to index 01 (02)'] = midden['image to index 01 (01)'].flatten(1,-1)
-#         midden['image to index 01 (03)'] = torch.as_tensor(midden['image to index 01 (02)']*(self.number['vocabulary']), dtype=torch.long)
-        
-#         ##  Image to index of text, given special tag.
-#         midden['image to index 02 (01)'] = self.layer['image to index 02'](midden['image to index 01 (02)'])
-#         midden['image to index 02 (02)'] = torch.as_tensor(midden['image to index 02 (01)'] * (self.number['sequence']-3), dtype=torch.long)
-#         for row, column in enumerate(midden['image to index 02 (02)']):
+        ##
+        if(image.is_cuda):
 
-#             midden['image to index 01 (03)'][row, 0] = vocabulary['<bos>']
-#             midden['image to index 01 (03)'][row, column] = vocabulary['<eos>']
-#             midden['image to index 01 (03)'][row, column+1:] = vocabulary['<pad>']
-#             pass    
-        
-#         ##  Encoder, index of text to encode.
-#         midden['image to index 03'] = midden['image to index 01 (03)'].transpose(0,1)
-#         midden['encoder memory'] = self.layer['text encoder'](
-#             self.layer['text to embedding'](midden['image to index 03']),
-#             mask.encode(midden['image to index 03']), 
-#             mask.pad(midden['image to index 03'])
-#         )
+            device = 'cuda'
+            pass
 
-#         ##  Decoder, encode to index of text.
-#         midden['decoder output'] = self.layer['text decoder'](
-#             self.layer['text to embedding'](text), 
-#             midden['encoder memory'], 
-#             mask.decode(text), 
-#             None, 
-#             mask.pad(text), 
-#             None
-#         )
-#         output = self.layer['text to vacabulary'](midden['decoder output'])
-#         # print("self.generator(outs)-----")
-#         # print(self.generator(outs).shape)
-#         return output
-
-
-    # def convert(self, image, length):
-
-    #     batch = image.shape[0]
-
-    #     if(image.is_cuda):
-
-    #         device = 'cuda'
-    #         pass
-
-    #     else:
+        else:
      
-    #         device = 'cpu'
-    #         pass
+            device = 'cpu'
+            pass
+        
+        ##
+        cell = {}
+        cell['01'] = self.layer['image']['01'](image).squeeze()
+        cell['02'] = self.layer['image']['02'](cell['01'].unsqueeze(dim=2)).transpose(0,1)
+        index = cell['02'].argmax(dim=2)
+        cell['03'] = self.layer['token']['03'](cell['01'])
+        length = (cell['03'] * (512-3)).int().flatten().tolist()
 
-    #     midden = {}
-    #     ##  Image to index of text, prototype.
-    #     midden['image to index 01 (01)'] = self.layer['image to index 01'](image)
-    #     midden['image to index 01 (02)'] = midden['image to index 01 (01)'].flatten(1,-1)
-    #     midden['image to index 01 (03)'] = torch.as_tensor(midden['image to index 01 (02)']*(self.number['vocabulary']), dtype=torch.long)
+        ##
+        for column, row in enumerate(length):
 
-    #     ##  Image to index of text, given special tag.
-    #     midden['image to index 02 (01)'] = self.layer['image to index 02'](midden['image to index 01 (02)'])
-    #     midden['image to index 02 (02)'] = torch.as_tensor(midden['image to index 02 (01)'] * (self.number['sequence']-3), dtype=torch.long)
-    #     for row, column in enumerate(midden['image to index 02 (02)']):
+            index[0, column] = self.vocabulary['<bos>']
+            index[row, column] = self.vocabulary['<eos>']
+            index[row+1:, column] = self.vocabulary['<pad>']
+            pass 
+        
+        ##
+        cell['04'] = self.layer['token']['04'](
+            self.layer['token']['embedding'](index), 
+            mask.encode(index), 
+            mask.pad(index, vocabulary=self.vocabulary)            
+        )
 
-    #         midden['image to index 01 (03)'][row, 0] = vocabulary['<bos>']
-    #         midden['image to index 01 (03)'][row, column] = vocabulary['<eos>']
-    #         midden['image to index 01 (03)'][row, column+1:] = vocabulary['<pad>']
-    #         pass    
+        batch = len(image)
+        sequence = torch.ones(1, batch).fill_(self.vocabulary['<bos>']).type(torch.long).to(device)
 
-    #     ##  Encoder, index of text to encode.
-    #     midden['image to index 03'] = midden['image to index 01 (03)'].transpose(0,1)
-    #     midden['encoder memory'] = self.layer['text encoder'](
-    #         self.layer['text to embedding'](midden['image to index 03']),
-    #         mask.encode(midden['image to index 03']), 
-    #         mask.pad(midden['image to index 03'])
-    #     )
+        for _ in range(size):
 
-    #     ##
-    #     memory = midden['encoder memory']
-    #     # print(memory.shape)
-    #     sequence = torch.ones(1, batch).fill_(vocabulary['<bos>']).type(torch.long).to(device)
-    #     # print("sequence")
-    #     # print(sequence.shape)
-    #     for _ in range(length):
-    #         midden['decoder output'] = self.layer['text decoder'](
-    #             self.layer['text to embedding'](sequence), 
-    #             memory, 
-    #             mask.decode(sequence), 
-    #             None, 
-    #             None
-    #         )
-    #         # print("midden['decoder output']-----")
-    #         # print(midden['decoder output'].shape)
-    #         probability = self.layer['text to vacabulary'](midden['decoder output'].transpose(0, 1)[:, -1])
-    #         # print("probability---")
-    #         # print(probability.shape)
-    #         _, prediction = torch.max(probability, dim = 1)
-    #         # print('prediction')
-    #         # print(prediction.shape)
-    #         # print(prediction)
-    #         sequence = torch.cat([sequence, prediction.unsqueeze(dim=0)], dim=0)
-    #         # print("sequence")
-    #         # print(sequence.shape)
-    #         output = []
-    #         for i in range(batch):
+            code = self.layer['token']['05'](
+                self.layer['token']['embedding'](sequence), 
+                cell['04'], 
+                mask.decode(sequence), 
+                None, 
+                None
+            )
+            probability = self.layer['token']['06'](code.transpose(0, 1)[:, -1])
+            _, prediction = torch.max(probability, dim = 1)
+            sequence = torch.cat([sequence, prediction.unsqueeze(dim=0)], dim=0)
+            pass
 
-    #             character = "InChI=1S/" + "".join([vocabulary.itos[token] for token in sequence[:,i]]).replace("<bos>", "").replace("<eos>", "").replace('<pad>', "")
-    #             output += [character]
-    #             pass
+        output = []
+        for i in range(batch):
 
-    #     return output
+            character = "".join([self.vocabulary.itos[token] for token in sequence[:,i]])
+            character = "InChI=1S/" + character
+            character = character.replace("<bos>", "").replace("<eos>", "").replace('<pad>', "")
+            output += [character]
+            pass
+
+        return output
 
     #     output = []
     #     for item in range(batch):

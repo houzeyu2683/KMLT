@@ -14,7 +14,7 @@ train['dataset'] = data.dataset(train['table'], image=data.process.image.learn ,
 check['dataset'] = data.dataset(check['table'], image=data.process.image.review, text=data.process.text.review)
 
 ##
-loader = data.loader(train=train['dataset'], check=check['dataset'], batch=16)
+loader = data.loader(train=train['dataset'], check=check['dataset'], batch=8)
 if(loader.available("train") and loader.available("check")):
 
     batch = next(iter(loader.train))    
@@ -29,7 +29,7 @@ import network
 
 ##
 model = network.model(vocabulary=vocabulary)
-# model(next(iter(loader.train)))
+# model.convert(batch[0])
 
 criterion = network.criterion.cel(ignore=vocabulary['<pad>'])
 
@@ -41,13 +41,12 @@ folder   = "SOURCE/LOG"
 
 ##
 machine  = network.machine(model=model, optimizer=optimizer, criterion=criterion, device='cuda', folder=folder, checkpoint="0")
-# machine.load(what='weight', path='SOURCE/LOG/9.checkpoint')
+machine.load(what='weight', path='SOURCE/LOG/0.checkpoint')
 
 ##
 iteration = 20
 history = {
-    # 'train' : {"cost":[]},
-    'check' : {"cost":[]}
+    'check' : {"cost":[], "score":[]}
 }
 for epoch in range(iteration):
 
@@ -66,6 +65,7 @@ for epoch in range(iteration):
         ##  History of epoch.
         # history['train']['cost'] += [measurement['train']['cost']]
         history['check']['cost'] += [measurement['check']['cost']]
+        history['check']['score'] += [measurement['check']['score']]
         
         ##  Save the report.
         report = network.report(check=history['check'])
