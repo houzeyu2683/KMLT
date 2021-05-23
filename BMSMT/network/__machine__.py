@@ -171,15 +171,18 @@ class machine:
 
     def load(self, what='weight', path=None):
 
-        if(path):
+        if(what=='weight'):
             
-            self.model.load_state_dict(torch.load(path, map_location=torch.device('cpu')))
-            print("Finish loading.")
-            return
-        
-        print("Fail loading.")
-        pass
+            try:
 
+                self.model.load_state_dict(torch.load(path, map_location=torch.device('cpu')))
+                print("Finish loading.")
+                return
+            
+            except:
+
+                print("Fail loading.")
+                return        
 
 
 # import torch

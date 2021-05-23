@@ -63,16 +63,18 @@ class model(torch.nn.Module):
             "vocabulary" : len(vocabulary.itos),
             "embedding" : 256
         }
+        self.size = size
         pass
 
         image = nn.ModuleDict({
-            "01" : nn.Sequential(*list(torchvision.models.resnet18(True).children())[:-1]),
-            "02" : nn.Sequential(nn.Linear(1, size['vocabulary']))
+            "00" : nn.Sequential(*list(torchvision.models.resnet18(True).children())[:-1]),
+            "01" : nn.GRU(1, 1, 1),
+            "02" : nn.Sigmoid(),
         })
         token = nn.ModuleDict({
             "03" : nn.Sequential(nn.Linear(512, 1), nn.Sigmoid()),
-            "04" : nn.TransformerEncoder(nn.TransformerEncoderLayer(d_model=size['embedding'], nhead=4), num_layers=8),
-            "05" : nn.TransformerDecoder(nn.TransformerDecoderLayer(d_model=size['embedding'], nhead=4), num_layers=8),
+            "04" : nn.TransformerEncoder(nn.TransformerEncoderLayer(d_model=size['embedding'], nhead=4), num_layers=6),
+            "05" : nn.TransformerDecoder(nn.TransformerDecoderLayer(d_model=size['embedding'], nhead=4), num_layers=6),
             "06" : nn.Sequential(nn.Linear(size['embedding'], size['vocabulary'])),
             "embedding" : nn.Embedding(size['vocabulary'], size['embedding'])
         })
@@ -90,10 +92,11 @@ class model(torch.nn.Module):
 
         ##
         cell = {}
-        cell['01'] = self.layer['image']['01'](image).squeeze()
-        cell['02'] = self.layer['image']['02'](cell['01'].unsqueeze(dim=2)).transpose(0,1)
-        index = cell['02'].argmax(dim=2)
-        cell['03'] = self.layer['token']['03'](cell['01'])
+        cell['00'] = self.layer['image']['00'](image).squeeze()
+        cell['01'], _ = self.layer['image']['01'](cell['00'].transpose(0,1).unsqueeze(dim=2))
+        cell['02'] = self.layer['image']['02'](cell['01']).squeeze()
+        index = torch.as_tensor(cell['02'] * self.size['vocabulary'], dtype=torch.long)
+        cell['03'] = self.layer['token']['03'](cell['00'])
         length = (cell['03'] * (512-3)).int().flatten().tolist()
 
         ##
@@ -139,10 +142,11 @@ class model(torch.nn.Module):
         
         ##
         cell = {}
-        cell['01'] = self.layer['image']['01'](image).squeeze()
-        cell['02'] = self.layer['image']['02'](cell['01'].unsqueeze(dim=2)).transpose(0,1)
-        index = cell['02'].argmax(dim=2)
-        cell['03'] = self.layer['token']['03'](cell['01'])
+        cell['00'] = self.layer['image']['00'](image).squeeze()
+        cell['01'], _ = self.layer['image']['01'](cell['00'].transpose(0,1).unsqueeze(dim=2))
+        cell['02'] = self.layer['image']['02'](cell['01']).squeeze()
+        index = torch.as_tensor(cell['02'] * self.size['vocabulary'], dtype=torch.long)
+        cell['03'] = self.layer['token']['03'](cell['00'])
         length = (cell['03'] * (512-3)).int().flatten().tolist()
 
         ##

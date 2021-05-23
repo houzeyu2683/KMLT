@@ -3,7 +3,7 @@
 import data
 
 ##  Load table and skip real test data.
-table = data.tabulation.read("SOURCE/CSV/ANNOTATION.csv", number=5000)
+table = data.tabulation.read("SOURCE/CSV/ANNOTATION.csv", number=None)
 table = data.tabulation.filter(table=table, column='mode', value='train')
 
 ##  Split table to train and check type.
@@ -14,7 +14,7 @@ train['dataset'] = data.dataset(train['table'], image=data.process.image.learn ,
 check['dataset'] = data.dataset(check['table'], image=data.process.image.review, text=data.process.text.review)
 
 ##
-loader = data.loader(train=train['dataset'], check=check['dataset'], batch=8)
+loader = data.loader(train=train['dataset'], check=check['dataset'], batch=80)
 if(loader.available("train") and loader.available("check")):
 
     batch = next(iter(loader.train))    
@@ -41,10 +41,10 @@ folder   = "SOURCE/LOG"
 
 ##
 machine  = network.machine(model=model, optimizer=optimizer, criterion=criterion, device='cuda', folder=folder, checkpoint="0")
-machine.load(what='weight', path='SOURCE/LOG/0.checkpoint')
+# machine.load(what='weight', path='SOURCE/LOG/0.checkpoint')
 
 ##
-iteration = 20
+iteration = 10
 history = {
     'check' : {"cost":[], "score":[]}
 }
